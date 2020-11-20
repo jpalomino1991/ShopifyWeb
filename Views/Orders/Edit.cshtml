@@ -1,0 +1,110 @@
+﻿@model ShopifyWeb.Models.Order
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Edit</title>
+</head>
+<body>
+
+<h4>Order</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="id" />
+            <div class="form-group">
+                <label asp-for="email" class="control-label"></label>
+                <input asp-for="email" class="form-control" />
+                <span asp-validation-for="email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="created_at" class="control-label"></label>
+                <input asp-for="created_at" class="form-control" />
+                <span asp-validation-for="created_at" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="updated_at" class="control-label"></label>
+                <input asp-for="updated_at" class="form-control" />
+                <span asp-validation-for="updated_at" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="number" class="control-label"></label>
+                <input asp-for="number" class="form-control" />
+                <span asp-validation-for="number" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="token" class="control-label"></label>
+                <input asp-for="token" class="form-control" />
+                <span asp-validation-for="token" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="gateway" class="control-label"></label>
+                <input asp-for="gateway" class="form-control" />
+                <span asp-validation-for="gateway" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="total_price" class="control-label"></label>
+                <input asp-for="total_price" class="form-control" />
+                <span asp-validation-for="total_price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="subtotal_price" class="control-label"></label>
+                <input asp-for="subtotal_price" class="form-control" />
+                <span asp-validation-for="subtotal_price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="total_tax" class="control-label"></label>
+                <input asp-for="total_tax" class="form-control" />
+                <span asp-validation-for="total_tax" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="currency" class="control-label"></label>
+                <input asp-for="currency" class="form-control" />
+                <span asp-validation-for="currency" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="financial_status" class="control-label"></label>
+                <input asp-for="financial_status" class="form-control" />
+                <span asp-validation-for="financial_status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="total_discounts" class="control-label"></label>
+                <input asp-for="total_discounts" class="form-control" />
+                <span asp-validation-for="total_discounts" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="total_line_items_price" class="control-label"></label>
+                <input asp-for="total_line_items_price" class="form-control" />
+                <span asp-validation-for="total_line_items_price" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="name" class="control-label"></label>
+                <input asp-for="name" class="form-control" />
+                <span asp-validation-for="name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="order_number" class="control-label"></label>
+                <input asp-for="order_number" class="form-control" />
+                <span asp-validation-for="order_number" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+</body>
+</html>
