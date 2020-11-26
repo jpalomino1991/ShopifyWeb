@@ -7,15 +7,22 @@
 }
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create">Nuevo Producto</a>
 </p>
 
 <form asp-action="Index" method="get">
+    <h4>Buscar Por: </h4>
     <div class="row">
         <div class="col">
             <div class="form-group">
                 <label for="Nombre" class="control-label">Nombre</label>
                 <input type="text" name="ByName" value="" class="form-control" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="Nombre" class="control-label">SKU</label>
+                <input type="text" name="BySKU" value="" class="form-control" />
             </div>
         </div>
         <div class="col">
@@ -65,7 +72,13 @@
                 @Html.DisplayName("Marca")
             </th>
             <th>
-                @Html.DisplayName("URL")
+                SKU
+            </th>
+            <th>
+                Tipo de Producto
+            </th>
+            <th>
+                URL
             </th>
             <th></th>
         </tr>
@@ -80,11 +93,16 @@
                 @Html.DisplayFor(modelItem => item.Vendor)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.SKU)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProductType)
+            </td>
+            <td>
                 <a href="@Environment.GetEnvironmentVariable("WEB_URL")@item.Handle" target="_blank">Ver en Web</a>
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
@@ -92,4 +110,4 @@
     </tbody>
 </table>
 
-<partial name="_PaginationPartial" view-data="ViewData" model="Model" />
+<partial name="_PaginationPartial" view-data="ViewData" model="Model" /> <p>Total : 30</p>

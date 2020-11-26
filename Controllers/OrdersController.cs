@@ -22,7 +22,7 @@ namespace ShopifyWeb.Controllers
         // GET: Orders
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Order.ToListAsync());
+            return View(await _context.Orders.ToListAsync());
         }
 
         // GET: Orders/Details/5
@@ -33,7 +33,7 @@ namespace ShopifyWeb.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Order
+            var order = await _context.Orders
                 .FirstOrDefaultAsync(m => m.id == id);
             if (order == null)
             {
@@ -54,7 +54,7 @@ namespace ShopifyWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("id,email,created_at,updated_at,number,token,gateway,total_price,subtotal_price,total_tax,currency,financial_status,total_discounts,total_line_items_price,name,order_number")] Order order)
+        public async Task<IActionResult> Create([Bind("id,email,created_at,updated_at,number,token,gateway,total_price,subtotal_price,total_tax,currency,financial_status,total_discounts,total_line_items_price,name,order_number")] Orders order)
         {
             if (ModelState.IsValid)
             {
@@ -73,7 +73,7 @@ namespace ShopifyWeb.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Order.FindAsync(id);
+            var order = await _context.Orders.FindAsync(id);
             if (order == null)
             {
                 return NotFound();
@@ -86,7 +86,7 @@ namespace ShopifyWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("id,email,created_at,updated_at,number,token,gateway,total_price,subtotal_price,total_tax,currency,financial_status,total_discounts,total_line_items_price,name,order_number")] Order order)
+        public async Task<IActionResult> Edit(string id, [Bind("id,email,created_at,updated_at,number,token,gateway,total_price,subtotal_price,total_tax,currency,financial_status,total_discounts,total_line_items_price,name,order_number")] Orders order)
         {
             if (id != order.id)
             {
@@ -124,7 +124,7 @@ namespace ShopifyWeb.Controllers
                 return NotFound();
             }
 
-            var order = await _context.Order
+            var order = await _context.Orders
                 .FirstOrDefaultAsync(m => m.id == id);
             if (order == null)
             {
@@ -139,15 +139,15 @@ namespace ShopifyWeb.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var order = await _context.Order.FindAsync(id);
-            _context.Order.Remove(order);
+            var order = await _context.Orders.FindAsync(id);
+            _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool OrderExists(string id)
         {
-            return _context.Order.Any(e => e.id == id);
+            return _context.Orders.Any(e => e.id == id);
         }
     }
 }

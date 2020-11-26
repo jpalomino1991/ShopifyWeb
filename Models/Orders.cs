@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ShopifyWeb.Models
 {
-    public class Order
+    public class Orders
     {
 		public string id { get; set; }
 		public string email { get; set; }

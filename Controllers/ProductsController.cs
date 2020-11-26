@@ -26,7 +26,7 @@ namespace ShopifyWeb.Controllers
             return View(await _context.Product.Where(p => p.ParentId == null).ToListAsync());
         }
 
-        public IActionResult Index(string byName,string byVendor,string byType,string byStock,int pageNumber = 1,int pageSize = 10)
+        public IActionResult Index(string byName,string byVendor,string byType,string byStock,int pageNumber = 1,int pageSize = 5)
         {
             int ExcludeRecords = (pageSize * pageNumber) - pageSize;
 
