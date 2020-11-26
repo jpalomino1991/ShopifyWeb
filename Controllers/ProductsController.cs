@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using cloudscribe.Pagination.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,9 +21,30 @@ namespace ShopifyWeb.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index2()
         {
-            return View(await _context.Product.ToListAsync());
+            return View(await _context.Product.Where(p => p.ParentId == null).ToListAsync());
+        }
+
+        public IActionResult Index(string byName,string byVendor,string byType,string byStock,int pageNumber = 1,int pageSize = 10)
+        {
+            int ExcludeRecords = (pageSize * pageNumber) - pageSize;
+
+            var products = _context.Product.Where(p => p.ParentId == null);
+            if (!string.IsNullOrEmpty(byName))
+                products = products.Where(p => p.Title.Contains(byName));
+
+            var filter = products.Skip(ExcludeRecords).Take(pageSize);
+
+            var result = new PagedResult<Product>
+            {
+                Data = filter.AsNoTracking().ToList(),
+                TotalItems = products.Count(),
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            return View(result);
         }
 
         // GET: Products/Details/5
