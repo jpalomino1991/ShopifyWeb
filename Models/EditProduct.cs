@@ -8,7 +8,9 @@ namespace ShopifyWeb.Models
 {
     public class EditProduct
     {
-        public List<Product> productDetail { get; set; }
+        public Product parent { get; set; }
+        public List<Product> childs { get; set; }
+        public List<string> imgtoShow { get; set; } 
         public List<IFormFile> images { get; set; }
     }
 }

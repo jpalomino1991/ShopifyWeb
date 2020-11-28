@@ -13,6 +13,9 @@
       "launchBrowser": true,
       "environmentVariables": {
         "WEB_URL": "https://kellys-shoes-pe.myshopify.com/products/",
+        "SMTPPassword": "rkZN9P$4Uqt#",
+        "RemotePath": "ftp://floryfiesta.com.pe/public_html/FOTOS_PRUEBAS",
+        "SMTPUser": "floryfiestae",
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
       }
