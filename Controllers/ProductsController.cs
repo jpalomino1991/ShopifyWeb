@@ -144,7 +144,7 @@ namespace ShopifyWeb.Controllers
 
                     string img = Convert.ToBase64String(bytes);
 
-                    img = $"<img src='data:image/jpeg;base64,{img}' class='file-preview-image' alt='{sku}_{i}.jpg' title='{sku}_{i}.jpg'>";
+                    //img = $"<img src='data:image/jpeg;base64,{img}' class='file-preview-image' alt='{sku}_{i}.jpg' title='{sku}_{i}.jpg'>";
 
                     result.Add(img);
                     i++;
@@ -209,24 +209,14 @@ namespace ShopifyWeb.Controllers
 
                     List<ImageShopify> imageShopifies = new List<ImageShopify>();
                     int i = 1;
-                    foreach (var file in lstProduct.images)
+                    foreach (var file in lstProduct.imgtoShow)
                     {
-                        if(file.Length > 0)
-                        {
-                            using (var ms = new MemoryStream())
-                            {
-                                file.CopyTo(ms);
-                                var fileBytes = ms.ToArray();
-                                string s = Convert.ToBase64String(fileBytes);
+                        ImageShopify imgS = new ImageShopify();
+                        imgS.attachment = file;
+                        imgS.filename = $"{ps.metafields_global_title_tag.ToUpper().Replace(" ", "_")}_{i}.jpg";
 
-                                ImageShopify imgS = new ImageShopify();
-                                imgS.attachment = s;
-                                imgS.filename = $"{ps.metafields_global_title_tag.ToUpper().Replace(" ", "_")}_{i}.jpg";
-
-                                imageShopifies.Add(imgS);
-                                i++;
-                            }
-                        }
+                        imageShopifies.Add(imgS);
+                        i++;
                     }
 
                     ps.images = imageShopifies;
@@ -240,7 +230,7 @@ namespace ShopifyWeb.Controllers
                     if (response.StatusCode.ToString().Equals("OK"))
                     {
                         _context.Update(lstProduct.parent);
-                        _context.Update(lstProduct.childs);
+                        _context.UpdateRange(lstProduct.childs);
                         _context.SaveChangesAsync();
                         _logger.LogInformation("Product uploaded");
                     }
@@ -258,7 +248,7 @@ namespace ShopifyWeb.Controllers
                         throw;
                     }*/
                 }
-                return RedirectToAction(nameof(Index));
+                return Ok();
             }
             return View(lstProduct);
         }

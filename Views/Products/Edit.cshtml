@@ -71,16 +71,24 @@
                 </div>
             </div>
 
-            <img src="..." alt="..." class="img-thumbnail">
-            <img src="..." alt="..." class="img-thumbnail">
-            <img src="..." alt="..." class="img-thumbnail">
+            <div id="showimage">
+                @for (int i = 0; i < Model.imgtoShow.Count(); i++)
+                {
+
+                    <div class="imageshow">
+                        <input type="hidden" asp-for="@Model.imgtoShow[i]" />
+                        <img src="data:image/jpeg;base64,@Model.imgtoShow[i]" class="rounded float-left" width="200">
+                        <button class="btn btn-danger eliminar">Eliminar</button>
+                    </div>
+                }
+            </div>
 
             <div class="form-group">
                 <label class="col-sm-9 control-label">
                     Subir Imagen(es)
                 </label>
                 <div class="class=" file-loading"">
-                    <input asp-for="@Model.images" id="input2" type="file" multiple>
+                    <input id="input2" type="file" multiple>
                 </div>
             </div>
 
@@ -98,9 +106,9 @@
                     @for (int i = 0; i < Model.childs.Count(); i++)
                     {
                         <tr>
-                            <td>@Model.childs[i].SKU</td>
-                            <td>@Model.childs[i].Size</td>
-                            <td><input asp-for="@Model.childs[i].Price" class="form-control" /></td>
+                            <td><input asp-for="@Model.childs[i].SKU" class="form-control" readonly/><input type="hidden" asp-for="@Model.childs[i].Id" /></td>
+                            <td><input asp-for="@Model.childs[i].Size" class="form-control" readonly/><input type="hidden" asp-for="@Model.childs[i].InventoryItemId" /></td>
+                            <td><input asp-for="@Model.childs[i].Price" class="form-control" /><input type="hidden" asp-for="@Model.childs[i].ParentId" /></td>
                             <td><input asp-for="@Model.childs[i].CompareAtPrice" class="form-control" /></td>
                             <td><input asp-for="@Model.childs[i].Stock" class="form-control" /></td>
                         </tr>
@@ -122,13 +130,6 @@
     <script>
         $(document).ready(function () {
             $("#desc").summernote();
-            var arr = @Html.Raw(Json.Serialize(@Model.imgtoShow));
-                $("#input2").fileinput({
-                    showUpload: false,
-                    dropZoneEnabled: false,
-                    initialPreview: arr,
-                    append: true
-                }); 
             $("#prueba2").click(function (e) {
                 e.preventDefault();
                 var result = $('form').serialize();
@@ -137,9 +138,71 @@
                 $.ajax({
                     method: 'post',
                     url: '',
-                    data: result
+                    data: result,
+                    success: function () {
+                        alert("Subido con exito");
+                    }
                 });
             });
+            var cont = @Model.imgtoShow.Count() - 1;
+            $(".eliminar").click(function (e) {
+                eliminarDiv(this);
+            });
+            $("#input2").change(function () {
+                readUrl(this);
+            });
+
+            function eliminarDiv(btn) {
+                cont--;
+                console.log(cont);
+                $(btn).parents("div.imageshow:first").remove();
+            }
+
+            function readUrl(input) {
+                if (input.files && input.files[0]) {
+                    for (var file of input.files) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            var div = document.createElement("div");
+                            var image = document.createElement("img");
+                            div.classList.add('imageshow');
+                            // the result image data
+                            var img = e.target.result;
+                            image.src = e.target.result;
+                            image.width = 200;
+                            image.classList.add('rounded');
+                            image.classList.add('float-left');
+
+                            cont++;
+                            var input = document.createElement("input");
+                            input.type = "hidden";
+                            input.id = "imgtoShow_" + cont + "_";
+                            input.name = "imgtoShow[" + cont + "]";
+                            input.value = img.substring(23);
+
+                            var button = document.createElement("button");
+                            button.classList.add("btn");
+                            button.classList.add("btn-danger");
+                            button.classList.add("eliminar");
+                            button.innerHTML = "Eliminar";
+                            button.onclick = function () {
+                                eliminarDiv(this);
+                            };
+
+                            div.appendChild(image);
+                            div.appendChild(input);
+                            div.appendChild(button)
+
+                            $("#showimage").append(div);
+                        }
+
+                        //reader.readAsArrayBuffer(file);
+                        // you have to declare the file loading
+                        reader.readAsDataURL(file);
+                    }
+                }
+            }
         });
     </script>
 }
