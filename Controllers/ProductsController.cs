@@ -208,15 +208,18 @@ namespace ShopifyWeb.Controllers
                     lstProduct.parent.Status = status;
 
                     List<ImageShopify> imageShopifies = new List<ImageShopify>();
-                    int i = 1;
-                    foreach (var file in lstProduct.imgtoShow)
+                    if(lstProduct.imgtoShow != null)
                     {
-                        ImageShopify imgS = new ImageShopify();
-                        imgS.attachment = file;
-                        imgS.filename = $"{ps.metafields_global_title_tag.ToUpper().Replace(" ", "_")}_{i}.jpg";
+                        int i = 1;
+                        foreach (var file in lstProduct.imgtoShow)
+                        {
+                            ImageShopify imgS = new ImageShopify();
+                            imgS.attachment = file;
+                            imgS.filename = $"{ps.metafields_global_title_tag.ToUpper().Replace(" ", "_")}_{i}.jpg";
 
-                        imageShopifies.Add(imgS);
-                        i++;
+                            imageShopifies.Add(imgS);
+                            i++;
+                        }
                     }
 
                     ps.images = imageShopifies;
@@ -229,9 +232,9 @@ namespace ShopifyWeb.Controllers
                     IRestResponse response = CallShopify("products/" + ps.id + ".json", Method.PUT, oJson);
                     if (response.StatusCode.ToString().Equals("OK"))
                     {
-                        _context.Update(lstProduct.parent);
-                        _context.UpdateRange(lstProduct.childs);
-                        _context.SaveChangesAsync();
+                        _context.Product.Update(lstProduct.parent);
+                        _context.Product.UpdateRange(lstProduct.childs);
+                        _context.SaveChanges();
                         _logger.LogInformation("Product uploaded");
                     }
                     else
