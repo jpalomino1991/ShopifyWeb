@@ -16,7 +16,7 @@
         "SMTPPassword": "rkZN9P$4Uqt#",
         "RemotePath": "ftp://floryfiesta.com.pe/public_html/FOTOS_PRUEBAS",
         "SMTPUser": "floryfiestae",
-        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_ENVIRONMENT": "Production",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
       }
     },
@@ -25,7 +25,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "WEB_URL": "https://kellys-shoes-pe.myshopify.com/products/",
-        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_ENVIRONMENT": "Production",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
       },
       "dotnetRunMessages": "true",

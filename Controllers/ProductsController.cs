@@ -151,9 +151,11 @@ namespace ShopifyWeb.Controllers
                 int i = 1;
                 foreach (ProductImage image in lstImage)
                 {
-                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{Environment.GetEnvironmentVariable("RemotePath")}/{image.name}");
+                    Web web = new Web();
+                    web = _context.Web.Find(1);
+                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{web.SMTPURL}/{image.name}");
                     request.Method = WebRequestMethods.Ftp.DownloadFile;
-                    request.Credentials = new NetworkCredential(Environment.GetEnvironmentVariable("SMTPUser"), Environment.GetEnvironmentVariable("SMTPPassword"));
+                    request.Credentials = new NetworkCredential(web.SMTPUser, web.SMTPPassword);
                     FtpWebResponse response = (FtpWebResponse)request.GetResponse();
 
                     Stream responseStream = response.GetResponseStream();
