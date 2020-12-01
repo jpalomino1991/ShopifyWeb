@@ -1,4 +1,4 @@
-﻿@model cloudscribe.Pagination.Models.PagedResult<Product>
+﻿@model cloudscribe.Pagination.Models.PagedResult<ViewProduct>
 
 @{ 
     ViewData["Title"] = "Index";
@@ -29,10 +29,11 @@
             <div class="form-group">
                 <label for="Marca" class="control-label">Marca</label>
                 <select class="custom-select" name="byVendor">
-                    <option selected>Open this select menu</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
+                    <option value="" selected>Seleccione un valor</option>
+                    @foreach (var item in Model.Data[0].Brands)
+                    {
+                        <option value="@item.Name">@item.Name</option>
+                    }
                 </select>
             </div>
         </div>
@@ -40,10 +41,11 @@
             <div class="form-group">
                 <label for="Tipo" class="control-label">Tipo</label>
                 <select class="custom-select" name="byType">
-                    <option selected>Open this select menu</option>
-                    <option value="1">One</option>
-                    <option value="2">Two</option>
-                    <option value="3">Three</option>
+                    <option value="" selected>Seleccione un valor</option>
+                    @foreach (var item in Model.Data[0].ProductTypes)
+                    {
+                        <option value="@item.Name">@item.Name</option>
+                    }
                 </select>
             </div>
         </div>
@@ -83,8 +85,8 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model.Data) {
+    <tbody> 
+        @foreach (var item in Model.Data[0].Products) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Title)

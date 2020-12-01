@@ -30,24 +30,46 @@ namespace ShopifyWeb.Controllers
         }
 
         // GET: Products
-        public async Task<IActionResult> Index2()
+        public IActionResult Index2()
         {
-            return View(await _context.Product.Where(p => p.ParentId == null).ToListAsync());
+            ViewProduct vp = new ViewProduct();
+            vp.Brands = _context.Brand.ToList();
+            vp.ProductTypes = _context.ProductType.ToList();
+            vp.Products = _context.Product.Where(p => p.ParentId == null).ToList();
+            return View(vp);
         }
 
-        public IActionResult Index(string byName,string byVendor,string byType,string byStock,int pageNumber = 1,int pageSize = 5)
+        public IActionResult Index(string byName,string BySKU, string byVendor,string byType,string byStock,int pageNumber = 1,int pageSize = 5)
         {
             int ExcludeRecords = (pageSize * pageNumber) - pageSize;
 
             var products = _context.Product.Where(p => p.ParentId == null);
             if (!string.IsNullOrEmpty(byName))
                 products = products.Where(p => p.Title.Contains(byName));
+            if (!string.IsNullOrEmpty(BySKU))
+                products = products.Where(p => p.SKU.Contains(BySKU));
+            if (!string.IsNullOrEmpty(byType))
+                products = products.Where(p => p.ProductType.Contains(byType));
+            if (!string.IsNullOrEmpty(byVendor))
+                products = products.Where(p => p.Vendor.Contains(byVendor));
+            if (byStock == "2")
+                products = products.Where(p => p.Status == "active");
+            if (byStock == "3")
+                products = products.Where(p => p.Status == "draft");
 
             var filter = products.Skip(ExcludeRecords).Take(pageSize);
 
-            var result = new PagedResult<Product>
+            List<ViewProduct> ls = new List<ViewProduct>();
+            ViewProduct vp = new ViewProduct();
+            vp.Brands = _context.Brand.AsNoTracking().ToList();
+            vp.ProductTypes = _context.ProductType.AsNoTracking().ToList();
+            vp.Products = filter.AsNoTracking().ToList();
+
+            ls.Add(vp);
+
+            var result = new PagedResult<ViewProduct>
             {
-                Data = filter.AsNoTracking().ToList(),
+                Data = ls,
                 TotalItems = products.Count(),
                 PageNumber = pageNumber,
                 PageSize = pageSize
