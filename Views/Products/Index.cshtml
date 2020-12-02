@@ -1,14 +1,31 @@
-﻿@model cloudscribe.Pagination.Models.PagedResult<ViewProduct>
+﻿@model cloudscribe.Pagination.Models.PagedResult<Product>
 
-@{ 
+@{
     ViewData["Title"] = "Index";
     ViewData["Controller"] = "Products";
     ViewData["Action"] = "Index";
 }
 
-<p>
-    <a asp-action="Create">Nuevo Producto</a>
-</p>
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal">
+    Nuevo Producto
+</button>
+
+<div class="modal fade" id="createModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <form asp-action="Create" method="get">
+                <div class="modal-body">
+                    <label for="Nombre" class="control-label">Codigo Padre</label>
+                    <input type="text" name="SKU" value="" class="form-control" required/>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Crear</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <form asp-action="Index" method="get">
     <h4>Buscar Por: </h4>
@@ -16,21 +33,21 @@
         <div class="col">
             <div class="form-group">
                 <label for="Nombre" class="control-label">Nombre</label>
-                <input type="text" name="ByName" value="" class="form-control" />
+                <input type="text" name="ByName" value="@ViewBag.byName" class="form-control" />
             </div>
         </div>
         <div class="col">
             <div class="form-group">
                 <label for="Nombre" class="control-label">SKU</label>
-                <input type="text" name="BySKU" value="" class="form-control" />
+                <input type="text" name="BySKU" value="@ViewBag.bySKU" class="form-control" />
             </div>
         </div>
         <div class="col">
             <div class="form-group">
                 <label for="Marca" class="control-label">Marca</label>
-                <select class="custom-select" name="byVendor">
+                <select id="brand" class="custom-select" name="byVendor">
                     <option value="" selected>Seleccione un valor</option>
-                    @foreach (var item in Model.Data[0].Brands)
+                    @foreach (var item in ViewBag.Brand)
                     {
                         <option value="@item.Name">@item.Name</option>
                     }
@@ -40,9 +57,9 @@
         <div class="col">
             <div class="form-group">
                 <label for="Tipo" class="control-label">Tipo</label>
-                <select class="custom-select" name="byType">
+                <select id="type" class="custom-select" name="byType">
                     <option value="" selected>Seleccione un valor</option>
-                    @foreach (var item in Model.Data[0].ProductTypes)
+                    @foreach (var item in ViewBag.ProductType)
                     {
                         <option value="@item.Name">@item.Name</option>
                     }
@@ -52,7 +69,7 @@
         <div class="col">
             <div class="form-group">
                 <label for="Stock" class="control-label">Stock</label>
-                <select class="custom-select" name="byStock">
+                <select id="stock" class="custom-select" name="byStock">
                     <option value="1">Todos</option>
                     <option value="2">Con Stock</option>
                     <option value="3">Sin Stock</option>
@@ -68,10 +85,10 @@
     <thead class="thead-dark">
         <tr>
             <th>
-                @Html.DisplayName("Nombre")
+                Nombre
             </th>
             <th>
-                @Html.DisplayName("Marca")
+                Marca
             </th>
             <th>
                 SKU
@@ -85,31 +102,42 @@
             <th></th>
         </tr>
     </thead>
-    <tbody> 
-        @foreach (var item in Model.Data[0].Products) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Vendor)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.SKU)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductType)
-            </td>
-            <td>
-                <a href="@Environment.GetEnvironmentVariable("WEB_URL")@item.Handle" target="_blank">Ver en Web</a>
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+    <tbody>
+        @foreach (var item in Model.Data)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Title)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Vendor)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SKU)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductType)
+                </td>
+                <td>
+                    <a href="@Environment.GetEnvironmentVariable("WEB_URL")@item.Handle" target="_blank">Ver en Web</a>
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
-<partial name="_PaginationPartial" view-data="ViewData" model="Model" /> <p>Total : 30</p>
+<partial name="_PaginationPartial" view-data="ViewData" model="Model" /> <p>Total : @Model.TotalItems</p>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#brand").val('@ViewBag.byVendor');
+            $("#type").val('@ViewBag.byType');
+            $("#stock").val('@ViewBag.byStock');
+        });
+    </script>
+}

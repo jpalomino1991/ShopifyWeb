@@ -41,6 +41,11 @@ namespace ShopifyWeb.Controllers
 
         public IActionResult Index(string byName,string BySKU, string byVendor,string byType,string byStock,int pageNumber = 1,int pageSize = 5)
         {
+            ViewBag.byName = byName;
+            ViewBag.bySKU = BySKU;
+            ViewBag.byVendor = byVendor;
+            ViewBag.byType = byType;
+            ViewBag.byStock = byStock;
             int ExcludeRecords = (pageSize * pageNumber) - pageSize;
 
             var products = _context.Product.Where(p => p.ParentId == null);
@@ -59,17 +64,12 @@ namespace ShopifyWeb.Controllers
 
             var filter = products.Skip(ExcludeRecords).Take(pageSize);
 
-            List<ViewProduct> ls = new List<ViewProduct>();
-            ViewProduct vp = new ViewProduct();
-            vp.Brands = _context.Brand.AsNoTracking().ToList();
-            vp.ProductTypes = _context.ProductType.AsNoTracking().ToList();
-            vp.Products = filter.AsNoTracking().ToList();
+            ViewBag.Brand = _context.Brand.AsNoTracking().ToList();
+            ViewBag.ProductType = _context.ProductType.AsNoTracking().ToList();
 
-            ls.Add(vp);
-
-            var result = new PagedResult<ViewProduct>
+            var result = new PagedResult<Product>
             {
-                Data = ls,
+                Data = filter.AsNoTracking().ToList(),
                 TotalItems = products.Count(),
                 PageNumber = pageNumber,
                 PageSize = pageSize
@@ -97,7 +97,7 @@ namespace ShopifyWeb.Controllers
         }
 
         // GET: Products/Create
-        public IActionResult Create()
+        public IActionResult Create(string SKU)
         {
             return View();
         }
@@ -262,22 +262,19 @@ namespace ShopifyWeb.Controllers
                         _logger.LogInformation("Product uploaded");
                     }
                     else
-                        _logger.LogError("Error uploading product: " + response.ErrorMessage);                    
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    /*if (!ProductExists(product.Id))
                     {
-                        return NotFound();
+                        _logger.LogError("Error uploading product: " + response.ErrorMessage);
+                        return NotFound(response.ErrorMessage);
                     }
-                    else
-                    {
-                        throw;
-                    }*/
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("Error updating product", e);
+                    return NotFound(e.Message); 
                 }
                 return Ok();
             }
-            return View(lstProduct);
+            return Ok();
         }
 
         public IRestResponse CallShopify(string resource, RestSharp.Method method, dynamic parameters)

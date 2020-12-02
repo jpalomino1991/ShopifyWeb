@@ -93,6 +93,12 @@
                 </div>
             </div>
 
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop">
+                Modal
+            </button>
+
+            <partial name="_LoadingPartial"/>
+
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
                     <tr>
@@ -132,16 +138,21 @@
         $(document).ready(function () {
             $("#desc").summernote();
             $("#prueba2").click(function (e) {
+                $('#staticBackdrop').modal('show');
                 e.preventDefault();
                 var result = $('form').serialize();
-                console.log(result);
 
                 $.ajax({
                     method: 'post',
                     url: '',
                     data: result,
-                    success: function () {
+                    success: function () {                        
+                        setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
                         alert("Subido con exito");
+                    },
+                    error: function (err) {
+                        setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
+                        alert(err.responseText);
                     }
                 });
             });
