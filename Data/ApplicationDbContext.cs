@@ -20,5 +20,22 @@ namespace ShopifyWeb.Data
         public DbSet<Web> Web { get; set; }
         public DbSet<Brand> Brand { get; set; }
         public DbSet<ProductType> ProductType { get; set; }
+        public virtual DbSet<ProductKelly> ProductKelly { get; set; }
+        public virtual DbSet<KellyChild> KellyChild { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Entity<ProductKelly>(eb =>
+                {
+                    eb.HasNoKey();
+                    eb.ToTable("ProductKelly");
+                })
+                .Entity<KellyChild>(eb =>
+                {
+                    eb.HasNoKey();
+                    eb.ToTable("KellyChild");
+                });
+        }
     }
 }

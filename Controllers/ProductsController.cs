@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -99,7 +100,139 @@ namespace ShopifyWeb.Controllers
         // GET: Products/Create
         public IActionResult Create(string SKU)
         {
-            return View();
+            try
+            {
+                Product product = _context.Product.Where(p => p.SKU == SKU).SingleOrDefault();
+
+                if (product == null)
+                {
+                    EditProduct ep = new EditProduct();
+
+                    var lst = _context.ProductKelly.FromSqlInterpolated($"GetProductInfoForShopify @CodigoSistema = {SKU}").ToList();
+
+                    if (lst != null)
+                    {
+                        ProductKelly parent = lst[0];
+                        Product ps = new Product();
+
+                        string body = "<table width='100%'><tbody><tr><td><strong>Color: </strong>Camel</td><td><strong>Marca: </strong>{0}</td><td><strong>Taco:&nbsp;</strong>{1}</td></tr>" +
+                            "<tr><td><strong>Material:<span>&nbsp;</span></strong>{2}</td><td><strong>Material Interior:<span>&nbsp;</span></strong>{3}</td><td><strong>Material de Suela:<span>" +
+                            "&nbsp;</span></strong>{4}</td></tr><tr><td><strong>Hecho en:<span>&nbsp;</span></strong>{5}</td><td><strong>Modelo:<span>&nbsp;</span></strong>{6}</td><td><br></td>" +
+                            "</tr></tbody></table>";
+
+                        ps.Vendor = parent.Marca;
+                        ps.ProductType = parent.SegmentoNivel4;
+                        ps.Description = String.Format(body, parent.Marca, parent.Taco, parent.Material, parent.MaterialInterior, parent.MaterialSuela, parent.HechoEn, parent.CodigoProducto);
+                        ps.Tags = $"{parent.SegmentoNivel2},{parent.Color},{parent.CodigoProducto},{parent.Material},{parent.Marca},{parent.SegmentoNivel1},{parent.SegmentoNivel4},{parent.SegmentoNivel5},{parent.CodigoPadre}";
+                        ps.Handle = $"{parent.CodigoProducto}-{parent.SegmentoNivel4}-{parent.SegmentoNivel2}-{parent.Color}-{parent.Marca}";
+
+                        string cp = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.CodigoProducto.ToLower());
+                        string mat = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.Material.ToLower());
+                        string col = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.Color.ToLower());
+                        string mar = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.Marca.ToLower());
+                        ps.Title = $"{parent.SegmentoNivel1} {col} {cp}";
+                        ps.SEODescription = $"{(parent.Campaña == null ? "" : parent.Campaña + " ")} {parent.SegmentoNivel2} {parent.SegmentoNivel5} {col} {mat} {col} {mar}";
+                        ps.SEOTitle = $"{parent.SegmentoNivel5} {cp} {mat}|{col}|{mar}";
+                        ps.CreateDate = DateTime.Now;
+                        ps.UpdateDate = DateTime.Now;
+
+                        List<KellyChild> lsChild = new List<KellyChild>();
+                        List<ProductImage> lstImage = new List<ProductImage>();
+
+                        lsChild = _context.KellyChild.FromSqlInterpolated($"GetProductChildInfo {parent.CodigoPadre}").ToList();
+                        lstImage = _context.ProductImage.Where(i => i.name.Contains(parent.CodigoPadre)).ToList();
+
+                        string talla = String.Join(",", lsChild.Select(r => r.Talla).ToArray());
+                        ps.Tags += "," + talla;
+
+                        List<string> imageShopifies = new List<string>();
+
+                        if (lstImage.Count > 0)
+                        {
+                            foreach (ProductImage image in lstImage)
+                            {
+                                Web web = _context.Web.Find(1);
+                                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(web.SMTPURL + "/" + image.name);
+                                request.Method = WebRequestMethods.Ftp.DownloadFile;
+                                request.Credentials = new NetworkCredential(web.SMTPUser, web.SMTPPassword);
+                                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                                Stream responseStream = response.GetResponseStream();
+                                byte[] bytes;
+                                using (var memoryStream = new MemoryStream())
+                                {
+                                    responseStream.CopyTo(memoryStream);
+                                    bytes = memoryStream.ToArray();
+                                }
+
+                                string img = Convert.ToBase64String(bytes);
+
+                                imageShopifies.Add(img);
+                            }
+                        }
+
+                        ep.imgtoShow = imageShopifies;
+
+                        List<Product> lsVariant = new List<Product>();
+                        int stock = 0;
+
+                        foreach (KellyChild child in lsChild)
+                        {
+                            Product variant = new Product();
+
+                            string promoPrice = GetPromoPrice(child.InicioPromocion, child.FinPromocion, child.PermitePromocion, child.PrecioTV, child.Promocion);
+                            variant.SKU = child.CodigoSistema;
+                            variant.Price = promoPrice == "" ? child.PrecioTV : decimal.Parse(promoPrice);
+                            variant.Size = child.Talla.ToString();
+                            variant.Stock = child.StockTotal <= 0 ? 0 : child.StockTotal;
+                            variant.CompareAtPrice = promoPrice == "" ? promoPrice : child.PrecioTV.ToString();
+                            variant.CreateDate = DateTime.Now;
+                            variant.UpdateDate = DateTime.Now;
+                            stock += child.StockTotal;
+                            lsVariant.Add(variant);
+                        }
+
+                        if (stock <= 0)
+                            ps.Status = "draft";
+                        else
+                            ps.Status = "active";
+                        ep.parent = ps;
+                        ep.childs = lsVariant;
+
+                        return View("Edit", ep);
+                    }
+                    else
+                        return View("Index");
+                }
+                else
+                    return RedirectToAction("Edit", new { id = product.Id });
+            }
+            catch(Exception e)
+            {
+                _logger.LogError("Error getting product information", e);
+                return NotFound();
+            }
+        }
+
+        public string GetPromoPrice(string beginDate, string endDate, string isPromo, decimal price, decimal discount)
+        {
+            string compare_price = "";
+            if (string.IsNullOrEmpty(beginDate))
+                return compare_price;
+            DateTime fechaFin = DateTime.Parse(endDate).AddDays(1).AddTicks(-1);
+            if (DateTime.Parse(beginDate) <= DateTime.Now && DateTime.Now <= fechaFin)
+            {
+                if (isPromo == "Si")
+                {
+                    decimal promocion = discount / 100;
+                    if (promocion > 0)
+                    {
+                        compare_price = (price * (1 - promocion)).ToString();
+                    }
+                }
+            }
+
+            return compare_price;
         }
 
         // POST: Products/Create
@@ -246,6 +379,14 @@ namespace ShopifyWeb.Controllers
                         }
                     }
 
+                    List<Option> lsOpt = new List<Option>();
+                    Option option = new Option();
+                    option.name = "Talla";
+                    option.position = 1;
+                    lsOpt.Add(option);
+
+                    ps.options = lsOpt;
+
                     ps.images = imageShopifies;
 
                     dynamic oJson = new
@@ -253,18 +394,50 @@ namespace ShopifyWeb.Controllers
                         product = ps
                     };
 
-                    IRestResponse response = CallShopify("products/" + ps.id + ".json", Method.PUT, oJson);
-                    if (response.StatusCode.ToString().Equals("OK"))
+                    if(ps.id != null)
                     {
-                        _context.Product.Update(lstProduct.parent);
-                        _context.Product.UpdateRange(lstProduct.childs);
-                        _context.SaveChanges();
-                        _logger.LogInformation("Product uploaded");
+                        IRestResponse response = CallShopify("products/" + ps.id + ".json", Method.PUT, oJson);
+                        if (response.StatusCode.ToString().Equals("OK"))
+                        {
+                            _context.Product.Update(lstProduct.parent);
+                            _context.Product.UpdateRange(lstProduct.childs);
+                            _context.SaveChanges();
+                            _logger.LogInformation("Product uploaded");
+                        }
+                        else
+                        {
+                            _logger.LogError("Error uploading product: " + response.ErrorMessage);
+                            return NotFound(response.ErrorMessage);
+                        }
                     }
                     else
                     {
-                        _logger.LogError("Error uploading product: " + response.ErrorMessage);
-                        return NotFound(response.ErrorMessage);
+                        IRestResponse response = CallShopify("products.json", Method.POST, oJson);
+                        if (response.StatusCode.ToString().Equals("Created"))
+                        {
+                            MasterProduct mp = JsonConvert.DeserializeObject<MasterProduct>(response.Content);
+                            if (mp.product != null)
+                            {
+                                lstProduct.parent.Id = mp.product.id;
+                                foreach(Variant variant in mp.product.variants)
+                                {
+                                    Product child = lstProduct.childs.Where(c => c.SKU == variant.sku).FirstOrDefault();
+                                    child.Id = variant.id;
+                                    child.InventoryItemId = variant.inventory_item_id;
+                                    child.ParentId = mp.product.id;
+                                }
+                            }
+
+                            _context.Product.Update(lstProduct.parent);
+                            _context.Product.UpdateRange(lstProduct.childs);
+                            _context.SaveChanges();
+                            _logger.LogInformation("Product created");
+                        }
+                        else
+                        {
+                            _logger.LogError("Error uploading product: " + response.ErrorMessage);
+                            return NotFound(response.ErrorMessage);
+                        }
                     }
                 }
                 catch (Exception e)
