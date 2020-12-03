@@ -135,6 +135,7 @@ namespace ShopifyWeb.Controllers
                         ps.SEOTitle = $"{parent.SegmentoNivel5} {cp} {mat}|{col}|{mar}";
                         ps.CreateDate = DateTime.Now;
                         ps.UpdateDate = DateTime.Now;
+                        ps.SKU = SKU;
 
                         List<KellyChild> lsChild = new List<KellyChild>();
                         List<ProductImage> lstImage = new List<ProductImage>();
@@ -240,15 +241,13 @@ namespace ShopifyWeb.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ParentId,Title,Description,Tags,Vendor,ProductType,Handle,Barcode,InventoryItemId,Stock,Price,CompareAtPrice,SKU,Size")] Product product)
+        public IActionResult Create(EditProduct lstProduct)
         {
-            if (ModelState.IsValid)
+            if(ModelState.IsValid)
             {
-                _context.Add(product);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return Ok();
             }
-            return View(product);
+            return NotFound();
         }
 
         // GET: Products/Edit/5
@@ -356,7 +355,7 @@ namespace ShopifyWeb.Controllers
 
                     ps.variants = lsVariant;
                     string status = "";
-                    if (stock <= 0)
+                    if (stock <= 0 || lstProduct.imgtoShow == null)
                         status = "draft";
                     else
                         status = "active";
@@ -428,8 +427,8 @@ namespace ShopifyWeb.Controllers
                                 }
                             }
 
-                            _context.Product.Update(lstProduct.parent);
-                            _context.Product.UpdateRange(lstProduct.childs);
+                            _context.Product.Add(lstProduct.parent);
+                            _context.Product.AddRange(lstProduct.childs);
                             _context.SaveChanges();
                             _logger.LogInformation("Product created");
                         }
@@ -499,12 +498,25 @@ namespace ShopifyWeb.Controllers
         // POST: Products/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public IActionResult DeleteConfirmed(string id)
         {
-            var product = await _context.Product.FindAsync(id);
-            _context.Product.Remove(product);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            Product product = _context.Product.Find(id);
+            List<Product> childs = _context.Product.Where(p => p.ParentId == id).ToList();
+
+            IRestResponse response = CallShopify("products/" + product.Id + ".json", Method.DELETE, null);
+            if (response.StatusCode.ToString().Equals("OK"))
+            {
+                _context.Product.Remove(product);
+                _context.Product.RemoveRange(childs);
+                _context.SaveChanges();
+                _logger.LogInformation("Product uploaded");
+                return Ok();
+            }
+            else
+            {
+                _logger.LogError("Error uploading product: " + response.ErrorMessage);
+                return NotFound(response.ErrorMessage);
+            }
         }
 
         private bool ProductExists(string id)
