@@ -18,6 +18,7 @@ namespace ShopifyWeb.Data
         public DbSet<Orders> Orders { get; set; }
         public DbSet<Product> Product { get; set; }
         public DbSet<ProductImage> ProductImage { get; set; }
+        public DbSet<ProductTempImage> ProductTempImage { get; set; }
         public DbSet<Web> Web { get; set; }
         public DbSet<Brand> Brand { get; set; }
         public DbSet<ProductType> ProductType { get; set; }

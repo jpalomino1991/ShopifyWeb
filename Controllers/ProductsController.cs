@@ -118,33 +118,79 @@ namespace ShopifyWeb.Controllers
                         ProductKelly parent = lst[0];
                         Product ps = new Product();
 
-                        string body = "<table width='100%'><tbody><tr><td><strong>Color: </strong>Camel</td><td><strong>Marca: </strong>{0}</td><td><strong>Taco:&nbsp;</strong>{1}</td></tr>" +
-                            "<tr><td><strong>Material:<span>&nbsp;</span></strong>{2}</td><td><strong>Material Interior:<span>&nbsp;</span></strong>{3}</td><td><strong>Material de Suela:<span>" +
-                            "&nbsp;</span></strong>{4}</td></tr><tr><td><strong>Hecho en:<span>&nbsp;</span></strong>{5}</td><td><strong>Modelo:<span>&nbsp;</span></strong>{6}</td><td><br></td>" +
+                        string body = "<table width='100%'><tbody><tr><td><strong>Color: </strong>{0}</td><td><strong>Marca: </strong>{1}</td><td><strong>Taco:&nbsp;</strong>{2}</td></tr>" +
+                            "<tr><td><strong>Material:<span>&nbsp;</span></strong>{3}</td><td><strong>Material Interior:<span>&nbsp;</span></strong>{4}</td><td><strong>Material de Suela:<span>" +
+                            "&nbsp;</span></strong>{5}</td></tr><tr><td><strong>Hecho en:<span>&nbsp;</span></strong>{6}</td><td><strong>Modelo:<span>&nbsp;</span></strong>{7}</td><td><br></td>" +
                             "</tr></tbody></table>";
 
-                        ps.Vendor = parent.Marca;
-                        ps.ProductType = parent.SegmentoNivel4;
-                        ps.Description = String.Format(body, parent.Marca, parent.Taco, parent.Material, parent.MaterialInterior, parent.MaterialSuela, parent.HechoEn, parent.CodigoProducto);
-                        ps.Tags = $"{parent.SegmentoNivel2},{parent.Color},{parent.CodigoProducto},{parent.Material},{parent.Marca},{parent.SegmentoNivel1},{parent.SegmentoNivel4},{parent.SegmentoNivel5},{parent.CodigoPadre}";
-                        ps.Handle = $"{parent.CodigoProducto}-{parent.SegmentoNivel4}-{parent.SegmentoNivel2}-{parent.Color}-{parent.Marca}";
-
                         string cp = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.CodigoProducto.ToLower());
-                        string mat = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.Material.ToLower());
+                        string mat = parent.Material != null ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(string.Join(' ', parent.Material.ToLower().Split('/').ToList())) : "";
+                        string matI = parent.MaterialInterior != null ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(string.Join(',', parent.MaterialInterior.ToLower().Split('/').ToList())) : "";
+                        string matS = parent.MaterialSuela != null ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(string.Join(',', parent.MaterialSuela.ToLower().Split('/').ToList())) : "";
                         string col = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.Color.ToLower());
-                        string mar = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.Marca.ToLower());
-                        ps.Title = $"{parent.SegmentoNivel1} {col} {cp}";
-                        ps.SEODescription = $"{(parent.Campaña == null ? "" : parent.Campaña + " ")} {parent.SegmentoNivel2} {parent.SegmentoNivel5} {col} {mat} {col} {mar}";
-                        ps.SEOTitle = $"{parent.SegmentoNivel5} {cp} {mat}|{col}|{mar}";
+                        string mar = parent.Marca != null ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.Marca.ToLower()) : "";
+                        string oca = parent.Ocasion != null ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.Ocasion.ToLower()) : "";
+                        string ten = parent.Tendencia != null ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(parent.Tendencia.ToLower()) : "";
+                        string imageName = "";
+
+                        string sex = parent.SegmentoNivel2;
+                        if (parent.SegmentoNivel2 == "Mujer" && parent.SegmentoNivel3 == "Niña")
+                            sex = "Niñas";
+                        if (parent.SegmentoNivel2 == "Hombre" && parent.SegmentoNivel3 == "Niño")
+                            sex = "Niños";
+
+                        ps.Vendor = mar;
+
+                        if (parent.SegmentoNivel4 == "Zapatos")
+                        {
+                            if (parent.SegmentoNivel5 == "Stiletto")
+                                ps.ProductType = "Stilettos";
+                            if (parent.SegmentoNivel5 == "Fiesta" || parent.SegmentoNivel5 == "Vestir")
+                                ps.ProductType = $"{parent.SegmentoNivel4} de {parent.SegmentoNivel5}";
+                            else
+                                ps.ProductType = $"{parent.SegmentoNivel4} {parent.SegmentoNivel5}";
+                        }
+                        else
+                            ps.ProductType = parent.SegmentoNivel4;
+                        ps.Description = String.Format(body, col, mar, parent.Taco, mat, matI, matS, parent.HechoEn, cp);
+                        ps.Tags = $"{ps.ProductType},{mat},{col},{cp},{mat.Replace(' ', ',')},{mar},{parent.SegmentoNivel1},{(sex != parent.SegmentoNivel2 ? "Kids," + sex : sex)},{parent.SegmentoNivel4},{parent.CodigoPadre},{ten},{oca},{parent.Taco}";
+                        ps.Handle = $"{cp}-{parent.SegmentoNivel4}-{sex}-{col}-{mar}";
+
+                        if (parent.SegmentoNivel4 == "Pantuflas" || parent.SegmentoNivel4 == "Alpargatas")
+                        {
+                            ps.Title = $"{parent.SegmentoNivel4} {col} {cp}";
+                            ps.SEODescription = $"{ten} {oca} {(parent.Campaña == null ? "" : parent.Campaña)} {sex} {parent.SegmentoNivel4} {cp} {mat} {col} {mar}";
+                            ps.SEOTitle = $"{parent.SegmentoNivel4} {cp} {mat} | {col} | {mar}";
+                            imageName = $"{parent.SegmentoNivel4}_{cp}_{mat}_{col}_{mar}";
+                        }
+                        else
+                        {
+                            if (parent.SegmentoNivel5 == "Stiletto")
+                            {
+                                ps.Title = $"Stilettos {col} {cp}";
+                                ps.SEODescription = $"{ten} {oca} {(parent.Campaña == null ? "" : parent.Campaña)} {sex} Stilettos {cp} {mat} {col} {mar}";
+                                ps.SEOTitle = $"Stilettos {cp} {mat} | {col} | {mar}";
+                                imageName = $"{parent.SegmentoNivel4}_{parent.SegmentoNivel5}_{cp}_{mat}_{col}_{mar}";
+                            }
+                            else
+                            {
+                                ps.Title = $"{parent.SegmentoNivel4} {parent.SegmentoNivel5} {col} {cp}";
+                                ps.SEODescription = $"{ten} {oca} {(parent.Campaña == null ? "" : parent.Campaña)} {sex} {parent.SegmentoNivel4} {parent.SegmentoNivel5} {cp} {mat} {col} {mar}";
+                                ps.SEOTitle = $"{parent.SegmentoNivel4} {parent.SegmentoNivel5} {cp} {mat} | {col} | {mar}";
+                                imageName = $"{parent.SegmentoNivel4}_{parent.SegmentoNivel5}_{cp}_{mat}_{col}_{mar}";
+                            }
+                        }
+
+                        ps.SEODescription = ps.SEODescription.Trim();
                         ps.CreateDate = DateTime.Now;
                         ps.UpdateDate = DateTime.Now;
                         ps.SKU = SKU;
 
                         List<KellyChild> lsChild = new List<KellyChild>();
-                        List<ProductImage> lstImage = new List<ProductImage>();
+                        List<ProductTempImage> lstImage = new List<ProductTempImage>();
 
                         lsChild = _context.KellyChild.FromSqlInterpolated($"GetProductChildInfo {parent.CodigoPadre}").ToList();
-                        lstImage = _context.ProductImage.Where(i => i.name.Contains(parent.CodigoPadre)).ToList();
+                        lstImage = _context.ProductTempImage.Where(i => i.sku == parent.CodigoPadre).OrderBy(i => i.name).ToList();
 
                         string talla = String.Join(",", lsChild.Select(r => r.Talla).ToArray());
                         ps.Tags += "," + talla;
@@ -153,7 +199,7 @@ namespace ShopifyWeb.Controllers
 
                         if (lstImage.Count > 0)
                         {
-                            foreach (ProductImage image in lstImage)
+                            foreach (ProductTempImage image in lstImage)
                             {
                                 Web web = _context.Web.Find(1);
                                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create(web.SMTPURL + "/" + image.name);
@@ -192,11 +238,11 @@ namespace ShopifyWeb.Controllers
                             variant.CompareAtPrice = promoPrice == "" ? promoPrice : child.PrecioTV.ToString();
                             variant.CreateDate = DateTime.Now;
                             variant.UpdateDate = DateTime.Now;
-                            stock += child.StockTotal;
+                            stock += child.StockTotal < 0 ? 0 : child.StockTotal;
                             lsVariant.Add(variant);
                         }
 
-                        if (stock <= 0)
+                        if (stock <= 0 || lstImage.Count == 0)
                             ps.Status = "draft";
                         else
                             ps.Status = "active";
@@ -215,6 +261,44 @@ namespace ShopifyWeb.Controllers
             {
                 _logger.LogError("Error getting product information", e);
                 return NotFound();
+            }
+        }
+
+        public ImageShopify getImageFromFtp(ProductTempImage image, string imageName, int i)
+        {
+            try
+            {
+                Web web = _context.Web.Find(1);
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{web.SMTPURL}/{image.name}{image.extension}");
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+                request.Credentials = new NetworkCredential(web.SMTPUser, web.SMTPPassword);
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                Stream responseStream = response.GetResponseStream();
+                byte[] bytes;
+                using (var memoryStream = new MemoryStream())
+                {
+                    responseStream.CopyTo(memoryStream);
+                    bytes = memoryStream.ToArray();
+                }
+
+                string img = Convert.ToBase64String(bytes);
+
+                ImageShopify imgS = new ImageShopify();
+                imgS.attachment = img;
+                imgS.filename = $"{imageName.ToUpper()}_{i}.jpg";
+                imgS.alt = $"{imageName.ToUpper()}_{i}.jpg";
+
+                return imgS;
+            }
+            catch (Exception e)
+            {
+                if (e.Message == "Unable to connect to the remote server")
+                {
+                    return getImageFromFtp(image, imageName, i);
+                }
+                _logger.LogError(e, "Error in ftp");
+                return null;
             }
         }
 
@@ -277,14 +361,14 @@ namespace ShopifyWeb.Controllers
 
         public List<string> getFTPImages(string sku)
         {
-            List<ProductImage> lstImage = _context.ProductImage.Where(i => i.name.Contains(sku)).ToList();
+            List<ProductTempImage> lstImage = _context.ProductTempImage.Where(i => i.sku.Contains(sku)).ToList();
 
             List<string> result = new List<string>();
 
             if (lstImage.Count > 0)
             {
                 int i = 1;
-                foreach (ProductImage image in lstImage)
+                foreach (ProductTempImage image in lstImage)
                 {
                     Web web = new Web();
                     web = _context.Web.Find(1);
