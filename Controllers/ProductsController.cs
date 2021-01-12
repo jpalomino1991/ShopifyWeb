@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using cloudscribe.Pagination.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -15,10 +16,12 @@ using Newtonsoft.Json;
 using RestSharp;
 using RestSharp.Authenticators;
 using ShopifyWeb.Data;
+using ShopifyWeb.Helpers;
 using ShopifyWeb.Models;
 
 namespace ShopifyWeb.Controllers
 {
+    [Authorize(Roles = Roles.Admin)]
     public class ProductsController : Controller
     {
         private readonly ILogger<ProductsController> _logger;

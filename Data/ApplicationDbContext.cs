@@ -23,6 +23,7 @@ namespace ShopifyWeb.Data
         public DbSet<ProductType> ProductType { get; set; }
         public virtual DbSet<ProductKelly> ProductKelly { get; set; }
         public virtual DbSet<KellyChild> KellyChild { get; set; }
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

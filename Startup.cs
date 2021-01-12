@@ -32,7 +32,10 @@ namespace ShopifyWeb
                 )
             );
 
-            services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddIdentity<IdentityUser,IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
 
             services.AddControllersWithViews();
             services.AddCloudscribePagination();
