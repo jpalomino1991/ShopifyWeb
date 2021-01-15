@@ -4,7 +4,7 @@
 <hr />
 <div class="row">
     <div class="col-md-8">
-        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <form id="EditProduct" asp-action="Edit" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="@Model.parent.Id" />
             <input type="hidden" asp-for="@Model.parent.CreateDate" />
@@ -76,11 +76,18 @@
                 @for (int i = 0; i < Model.imgtoShow.Count(); i++)
                 {
 
-                    <div class="imageshow">
-                        <input type="hidden" asp-for="@Model.imgtoShow[i]" />
+                <div class="imageshow">
+                    <input type="hidden" asp-for="@Model.imgtoShow[i]" />
+                    @if (Model.imgtoShow[i].Contains("cdn.shopify"))
+                    {
+                        <img src="@Model.imgtoShow[i]" class="rounded float-left" width="200">
+                    }
+                    else
+                    {
                         <img src="data:image/jpeg;base64,@Model.imgtoShow[i]" class="rounded float-left" width="200">
-                        <button class="btn btn-danger eliminar">Eliminar</button>
-                    </div>
+                    }
+                    <button class="btn btn-danger eliminar">Eliminar</button>
+                </div>
                 }
             </div>
 
@@ -140,11 +147,13 @@
             $("#prueba2").click(function (e) {
                 $('#staticBackdrop').modal('show');
                 e.preventDefault();
-                var result = $('form').serialize();
+                var result = $('#EditProduct').serialize();
+                console.log($('input[name="__RequestVerificationToken"]').last().val());
 
                 $.ajax({
                     method: 'post',
                     url: '/Products/Edit',
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').last().val() },
                     data: result,
                     success: function () {                        
                         setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);

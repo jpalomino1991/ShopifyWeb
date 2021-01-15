@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using cloudscribe.Pagination.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -66,7 +67,7 @@ namespace ShopifyWeb.Controllers
             if (byStock == "3")
                 products = products.Where(p => p.Status == "draft");
 
-            var filter = products.Skip(ExcludeRecords).Take(pageSize);
+            var filter = products.OrderBy(p => p.SKU).Skip(ExcludeRecords).Take(pageSize);
 
             ViewBag.Brand = _context.Brand.AsNoTracking().ToList();
             ViewBag.ProductType = _context.ProductType.AsNoTracking().ToList();
@@ -202,7 +203,7 @@ namespace ShopifyWeb.Controllers
                             foreach (ProductTempImage image in lstImage)
                             {
                                 Web web = _context.Web.Find(1);
-                                FtpWebRequest request = (FtpWebRequest)WebRequest.Create(web.SMTPURL + "/" + image.name);
+                                FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{web.SMTPURL}/{image.name}{image.extension}");
                                 request.Method = WebRequestMethods.Ftp.DownloadFile;
                                 request.Credentials = new NetworkCredential(web.SMTPUser, web.SMTPPassword);
                                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
@@ -350,8 +351,15 @@ namespace ShopifyWeb.Controllers
             var childs = _context.Product.Where(p => p.ParentId == id).OrderBy(p => p.ParentId).ToList();
             ps.childs = childs;
 
-            List<string> lstimg = getFTPImages(ps.parent.SKU);
-            ps.imgtoShow = lstimg;
+            List<ProductImage> lstImg = _context.ProductImage.Where(p => p.product_id == id).ToList();
+            List<string> lstStr = new List<string>();
+
+            foreach(ProductImage pi in lstImg)
+            {
+                lstStr.Add(pi.src);
+            }
+            //List<string> lstimg = getFTPImages(ps.parent.SKU);
+            ps.imgtoShow = lstStr;
             if (childs == null)
             {
                 return NotFound();
@@ -372,7 +380,7 @@ namespace ShopifyWeb.Controllers
                 {
                     Web web = new Web();
                     web = _context.Web.Find(1);
-                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{web.SMTPURL}/{image.name}");
+                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"{web.SMTPURL}/{image.name}{image.extension}");
                     request.Method = WebRequestMethods.Ftp.DownloadFile;
                     request.Credentials = new NetworkCredential(web.SMTPUser, web.SMTPPassword);
                     FtpWebResponse response = (FtpWebResponse)request.GetResponse();
@@ -415,6 +423,7 @@ namespace ShopifyWeb.Controllers
                     ps.tags = lstProduct.parent.Tags;
                     ps.handle = lstProduct.parent.Handle;
                     ps.id = lstProduct.parent.Id;
+                    ps.published_scope = "global";
                     ps.title = lstProduct.parent.Title;                    
                     ps.metafields_global_description_tag = lstProduct.parent.SEODescription;
                     ps.metafields_global_title_tag = lstProduct.parent.SEOTitle;
@@ -451,16 +460,19 @@ namespace ShopifyWeb.Controllers
                     lstProduct.parent.Status = status;
 
                     List<ImageShopify> imageShopifies = new List<ImageShopify>();
-                    if(lstProduct.imgtoShow != null)
+                    if(lstProduct.imgtoShow.Count > 0)
                     {
                         int i = 1;
-                        foreach (var file in lstProduct.imgtoShow)
-                        {
-                            ImageShopify imgS = new ImageShopify();
-                            imgS.attachment = file;
-                            imgS.filename = $"{ps.metafields_global_title_tag.ToUpper().Replace(" ", "_")}_{i}.jpg";
-
-                            imageShopifies.Add(imgS);
+                        foreach (string file in lstProduct.imgtoShow)
+                        {                            
+                            if (!Regex.IsMatch(file, @"^(http|https|ftp|)\:\/\/[0-9a-zA-Z]([-.\w]*[0-9a-zA-Z])*(:(0-9)*)*(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&%\$#_]*)?([a-zA-Z0-9\-\?\,\'\/\+&%\$#_]+)"))
+                            {
+                                ImageShopify imgS = new ImageShopify();
+                                imgS.attachment = file;
+                                imgS.filename = $"{ps.metafields_global_title_tag.ToUpper().Replace("| ", "").Replace(" ", "_")}_{i}.jpg";
+                                imgS.position = i;
+                                imageShopifies.Add(imgS);
+                            }
                             i++;
                         }
                     }
@@ -473,7 +485,8 @@ namespace ShopifyWeb.Controllers
 
                     ps.options = lsOpt;
 
-                    ps.images = imageShopifies;
+                    if (ps.id == null)
+                        ps.images = imageShopifies;                    
 
                     dynamic oJson = new
                     {
@@ -482,9 +495,43 @@ namespace ShopifyWeb.Controllers
 
                     if(ps.id != null)
                     {
+                        List<ProductImage> lstPi = _context.ProductImage.Where(p => p.product_id == ps.id).ToList();
+                        foreach(ProductImage pi in lstPi)
+                        {
+
+                        }
+
                         IRestResponse response = CallShopify("products/" + ps.id + ".json", Method.PUT, oJson);
                         if (response.StatusCode.ToString().Equals("OK"))
                         {
+                            if (imageShopifies.Count > 0)
+                            {
+                                foreach(ImageShopify imgS in imageShopifies)
+                                {
+                                    dynamic oJ = new
+                                    {
+                                        image = imgS
+                                    };
+                                    IRestResponse response1 = CallShopify($"products/{ps.id}/images.json", Method.POST, oJ);
+                                    if(response.StatusCode.ToString().Equals("OK"))
+                                    {
+                                        MasterImage mi = JsonConvert.DeserializeObject<MasterImage>(response1.Content);
+
+                                        ProductImage pi = new ProductImage();
+                                        pi.id = mi.image.id;
+                                        pi.product_id = lstProduct.parent.Id;
+                                        pi.src = mi.image.src;
+                                        pi.alt = mi.image.alt;
+
+                                        _context.ProductImage.Add(pi);
+                                    }
+                                    else
+                                    {
+                                        _logger.LogError("Error uploading product: " + response.ErrorMessage);
+                                        return NotFound(response.ErrorMessage);
+                                    }
+                                }                                
+                            }
                             _context.Product.Update(lstProduct.parent);
                             _context.Product.UpdateRange(lstProduct.childs);
                             _context.SaveChanges();
@@ -516,6 +563,18 @@ namespace ShopifyWeb.Controllers
 
                             _context.Product.Add(lstProduct.parent);
                             _context.Product.AddRange(lstProduct.childs);
+
+                            foreach (ImageShopify img in mp.product.images)
+                            {
+                                ProductImage pi = new ProductImage();
+                                pi.id = img.id;
+                                pi.product_id = lstProduct.parent.Id;
+                                pi.src = img.src;
+                                pi.alt = img.alt;
+
+                                _context.ProductImage.Add(pi);
+                            }
+
                             _context.SaveChanges();
                             _logger.LogInformation("Product created");
                         }

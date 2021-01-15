@@ -10,6 +10,6 @@ namespace ShopifyWeb.Models
     {
         public Product parent { get; set; }
         public List<Product> childs { get; set; }
-        public List<string> imgtoShow { get; set; } 
+        public List<string> imgtoShow { get; set; }
     }
 }
