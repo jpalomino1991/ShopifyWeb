@@ -460,6 +460,7 @@ namespace ShopifyWeb.Controllers
                     lstProduct.parent.Status = status;
 
                     List<ImageShopify> imageShopifies = new List<ImageShopify>();
+                    ps.images = new List<ImageShopify>();
                     if(lstProduct.imgtoShow.Count > 0)
                     {
                         int i = 1;
@@ -470,7 +471,7 @@ namespace ShopifyWeb.Controllers
                                 ImageShopify imgS = new ImageShopify();
                                 imgS.attachment = file;
                                 imgS.filename = $"{ps.metafields_global_title_tag.ToUpper().Replace("| ", "").Replace(" ", "_")}_{i}.jpg";
-                                imgS.position = i;
+                                imgS.alt = imgS.filename;
                                 imageShopifies.Add(imgS);
                             }
                             i++;
@@ -498,7 +499,19 @@ namespace ShopifyWeb.Controllers
                         List<ProductImage> lstPi = _context.ProductImage.Where(p => p.product_id == ps.id).ToList();
                         foreach(ProductImage pi in lstPi)
                         {
-
+                            if(!lstProduct.imgtoShow.Contains(pi.src))
+                            {
+                                IRestResponse response1 = CallShopify($"products/{ps.id}/images/{pi.id}.json",Method.DELETE,null);
+                                if(response1.StatusCode.ToString().Equals("OK"))
+                                {
+                                    _context.ProductImage.Remove(pi);
+                                }
+                                else
+                                {
+                                    _logger.LogError("Error uploading product: " + response1.ErrorMessage);
+                                    return NotFound(response1.ErrorMessage);
+                                }
+                            }
                         }
 
                         IRestResponse response = CallShopify("products/" + ps.id + ".json", Method.PUT, oJson);
@@ -513,7 +526,7 @@ namespace ShopifyWeb.Controllers
                                         image = imgS
                                     };
                                     IRestResponse response1 = CallShopify($"products/{ps.id}/images.json", Method.POST, oJ);
-                                    if(response.StatusCode.ToString().Equals("OK"))
+                                    if(response1.StatusCode.ToString().Equals("OK"))
                                     {
                                         MasterImage mi = JsonConvert.DeserializeObject<MasterImage>(response1.Content);
 
@@ -527,8 +540,8 @@ namespace ShopifyWeb.Controllers
                                     }
                                     else
                                     {
-                                        _logger.LogError("Error uploading product: " + response.ErrorMessage);
-                                        return NotFound(response.ErrorMessage);
+                                        _logger.LogError("Error uploading product: " + response1.ErrorMessage);
+                                        return NotFound(response1.ErrorMessage);
                                     }
                                 }                                
                             }

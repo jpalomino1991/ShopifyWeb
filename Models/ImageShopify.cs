@@ -13,6 +13,5 @@ namespace ShopifyWeb.Models
         public string filename { get; set; }
         public string alt { get; set; }
         public string src { get; set; }
-        public int position { get; set; }
     }
 }
