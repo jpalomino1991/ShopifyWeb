@@ -76,18 +76,18 @@
                 @for (int i = 0; i < Model.imgtoShow.Count(); i++)
                 {
 
-                <div class="imageshow">
-                    <input type="hidden" asp-for="@Model.imgtoShow[i]" />
-                    @if (Model.imgtoShow[i].Contains("cdn.shopify"))
-                    {
-                        <img src="@Model.imgtoShow[i]" class="rounded float-left" width="200">
-                    }
-                    else
-                    {
-                        <img src="data:image/jpeg;base64,@Model.imgtoShow[i]" class="rounded float-left" width="200">
-                    }
-                    <button class="btn btn-danger eliminar">Eliminar</button>
-                </div>
+                    <div class="imageshow">
+                        <input type="hidden" asp-for="@Model.imgtoShow[i]" />
+                        @if (Model.imgtoShow[i].Contains("cdn.shopify"))
+                        {
+                            <img src="@Model.imgtoShow[i]" class="rounded float-left" width="200">
+                        }
+                        else
+                        {
+                            <img src="data:image/jpeg;base64,@Model.imgtoShow[i]" class="rounded float-left" width="200">
+                        }
+                        <button class="btn btn-danger eliminar">Eliminar</button>
+                    </div>
                 }
             </div>
 
@@ -100,11 +100,11 @@
                 </div>
             </div>
 
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" hidden>
                 Modal
             </button>
 
-            <partial name="_LoadingPartial"/>
+            <partial name="_LoadingPartial" />
 
             <table class="table table-striped table-bordered">
                 <thead class="thead-dark">
@@ -132,13 +132,17 @@
 
             <div class="form-group">
                 <input type="submit" id="prueba2" value="Guardar y Subir" class="btn btn-primary" />
+                <button class="btn-danger" id="eliminarProducto" data-id="@Model.parent.Id" data-name="@Model.parent.Title">Eliminar</button>
             </div>
         </form>
     </div>
 </div>
 
+<partial name="_ConfirmDeletePartial" />
+<partial name="_SuccessModalPartial" />
+
 <div>
-    <a asp-action="Index">Regresar</a>
+    <a asp-action="Index" id="return">Regresar</a>
 </div>
 @section Scripts {
     <script>
@@ -155,7 +159,7 @@
                     url: '/Products/Edit',
                     headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').last().val() },
                     data: result,
-                    success: function () {                        
+                    success: function () {
                         setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
                         alert("Subido con exito");
                     },
@@ -171,6 +175,29 @@
             });
             $("#input2").change(function () {
                 readUrl(this);
+            });
+
+            $('#eliminarProducto').click(function (e) {
+                e.preventDefault();
+                $('#deleteProductName').html("Desea eliminar el producto: " + $(this).data("name"));
+                $('#deleteProductId').val($(this).data("id"));
+                $('#deleteModal').modal('show');
+            });
+
+            $('#confirmDelete').click(function () {
+                $.ajax({
+                    method: 'post',
+                    url: '/Products/Delete/' + $('#deleteProductId').val(),
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').last().val() },
+                    success: function () {
+                        alert("El producto ha sido eliminado");
+                        window.location.href = $('#return').attr('href');
+                    },
+                    error: function (err) {
+                        alert(err.responseText);
+                    }
+                });
+                $('#deleteModal').modal('hide');
             });
 
             function eliminarDiv(btn) {

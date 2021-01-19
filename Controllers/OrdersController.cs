@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using cloudscribe.Pagination.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -23,9 +24,23 @@ namespace ShopifyWeb.Controllers
         }
 
         // GET: Orders
-        public async Task<IActionResult> Index()
+        public IActionResult Index(int pageNumber = 1, int pageSize = 10)
         {
-            return View(await _context.Orders.ToListAsync());
+            int ExcludeRecords = (pageSize * pageNumber) - pageSize;
+
+            var orders = _context.Orders.ToList();
+
+            var filter = _context.Orders.OrderByDescending(p => p.created_at).Skip(ExcludeRecords).Take(pageSize);
+
+            var result = new PagedResult<Orders>
+            {
+                Data = filter.AsNoTracking().ToList(),
+                TotalItems = orders.Count(),
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            return View(result);
         }
 
         // GET: Orders/Details/5

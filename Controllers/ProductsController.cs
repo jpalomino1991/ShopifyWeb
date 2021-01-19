@@ -44,7 +44,7 @@ namespace ShopifyWeb.Controllers
             return View(vp);
         }
 
-        public IActionResult Index(string byName,string BySKU, string byVendor,string byType,string byStock,int pageNumber = 1,int pageSize = 5)
+        public IActionResult Index(string byName,string BySKU, string byVendor,string byType,string byStock,int pageNumber = 1,int pageSize = 10)
         {
             ViewBag.byName = byName;
             ViewBag.bySKU = BySKU;
@@ -661,19 +661,21 @@ namespace ShopifyWeb.Controllers
         {
             Product product = _context.Product.Find(id);
             List<Product> childs = _context.Product.Where(p => p.ParentId == id).ToList();
+            List<ProductImage> images = _context.ProductImage.Where(p => p.product_id == id).ToList();
 
             IRestResponse response = CallShopify("products/" + product.Id + ".json", Method.DELETE, null);
             if (response.StatusCode.ToString().Equals("OK"))
             {
                 _context.Product.Remove(product);
                 _context.Product.RemoveRange(childs);
+                _context.ProductImage.RemoveRange(images);
                 _context.SaveChanges();
-                _logger.LogInformation("Product uploaded");
+                _logger.LogInformation("Product deleted");
                 return Ok();
             }
             else
             {
-                _logger.LogError("Error uploading product: " + response.ErrorMessage);
+                _logger.LogError("Error deleting product: " + response.ErrorMessage);
                 return NotFound(response.ErrorMessage);
             }
         }

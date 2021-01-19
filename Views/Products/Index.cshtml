@@ -122,8 +122,8 @@
                     <a href="@Environment.GetEnvironmentVariable("WEB_URL")@item.Handle" target="_blank">Ver en Web</a>
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a class="btn btn-info" role="button" asp-action="Edit" asp-route-id="@item.Id">Ver</a>
+                    <button class="btn btn-danger" id="@item.Id" data-name="@item.Title">Eliminar</button>
                 </td>
             </tr>
         }
@@ -131,6 +131,8 @@
 </table>
 
 <partial name="_PaginationPartial" view-data="ViewData" model="Model" /> <p>Total : @Model.TotalItems</p>
+<partial name="_ConfirmDeletePartial"/>
+<partial name="_SuccessModalPartial"/>
 
 @section Scripts {
     <script>
@@ -139,5 +141,27 @@
             $("#type").val('@ViewBag.byType');
             $("#stock").val('@ViewBag.byStock');
         });
+        $('.btn-danger').click(function () {
+            $('#deleteProductName').html("Desea eliminar el producto: " + $(this).data("name"));
+            $('#deleteProductId').val(this.id);
+            $('#deleteModal').modal('show');
+        });
+        $('#confirmDelete').click(function () {            
+            $.ajax({
+                method: 'post',
+                url: '/Products/Delete/' + $('#deleteProductId').val(),
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').last().val() },
+                success: function () {
+                    setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
+                    $('#successModal').modal('show');
+                },
+                error: function (err) {
+                    setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
+                    alert(err.responseText);
+                }
+            });
+            $('#deleteModal').modal('hide');
+        });
+
     </script>
 }
