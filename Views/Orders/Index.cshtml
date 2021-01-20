@@ -12,7 +12,29 @@
         <div class="col">
             <div class="form-group">
                 <label for="Nombre" class="control-label"># de Orden</label>
+                <input type="text" name="ByOrderNumber" value="@ViewBag.byOrderNumber" class="form-control" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="Nombre" class="control-label">Nombre</label>
                 <input type="text" name="ByName" value="@ViewBag.byName" class="form-control" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="Nombre" class="control-label">Correo</label>
+                <input type="text" name="ByEmail" value="@ViewBag.byEmail" class="form-control" />
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="Nombre" class="control-label">Estado de Pago</label>
+                <select id="payment" class="custom-select" name="byPayment">
+                    <option value="0" selected>Seleccione un valor</option>
+                    <option value="1">Deposito Bancario</option>
+                    <option value="2">Mercado Pago</option>
+                </select>
             </div>
         </div>
     </div>
@@ -30,6 +52,9 @@
                 Tipo de Pago
             </th>
             <th>
+                Correo
+            </th>
+            <th>
                 Fecha
             </th>
             <th>
@@ -44,28 +69,39 @@
     <tbody>
         @foreach (var item in Model.Data)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.order_number)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.gateway)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.created_at)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.total_price)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.financial_status)
-                </td>
-                <td>
-                    <a class="btn btn-info" role="button" asp-action="Edit" asp-route-id="@item.id">Ver</a>
-                </td>
-            </tr>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.order_number)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.gateway)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.created_at)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.total_price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.financial_status)
+            </td>
+            <td>
+                <a class="btn btn-info" role="button" asp-action="Edit" asp-route-id="@item.id">Ver</a>
+            </td>
+        </tr>
         }
     </tbody>
 </table>
 
 <partial name="_PaginationPartial" view-data="ViewData" model="Model" /> <p>Total : @Model.TotalItems</p>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#payment").val('@ViewBag.byPayment');
+        });
+    </script>
+}

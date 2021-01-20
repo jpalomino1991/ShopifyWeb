@@ -24,13 +24,36 @@ namespace ShopifyWeb.Controllers
         }
 
         // GET: Orders
-        public IActionResult Index(int pageNumber = 1, int pageSize = 10)
+        public IActionResult Index(string byOrderNumber,string byName,string byEmail,int byPayment, int pageNumber = 1, int pageSize = 10)
         {
+            ViewBag.byName = byName;
+            ViewBag.byOrderNumber = byOrderNumber;
+            ViewBag.byEmail = byEmail;
+            ViewBag.byPayment = byPayment;
             int ExcludeRecords = (pageSize * pageNumber) - pageSize;
 
-            var orders = _context.Orders.ToList();
+            var orders = _context.Orders.Where(o => o.total_price > 0);
 
-            var filter = _context.Orders.OrderByDescending(p => p.created_at).Skip(ExcludeRecords).Take(pageSize);
+            if(!string.IsNullOrEmpty(byOrderNumber))
+            {
+                orders = orders.Where(o => o.order_number.Contains(byOrderNumber));
+            }
+            if (!string.IsNullOrEmpty(byEmail))
+            {
+                orders = orders.Where(o => o.email.Contains(byEmail));
+            }
+            if (byPayment > 0)
+            {
+                if(byPayment == 1)
+                    orders = orders.Where(o => o.gateway.Equals("Bank Deposit"));
+                else
+                    orders = orders.Where(o => o.gateway.Equals("mercado_pago"));
+            }
+            if (!string.IsNullOrEmpty(byName))
+            {
+                List<Customer> customers = _context.Customer.Where(c => c.first_name.Contains(byName) || c.last_name.Contains(byName)).ToList();
+            }
+            var filter = orders.OrderByDescending(p => p.created_at).Skip(ExcludeRecords).Take(pageSize);
 
             var result = new PagedResult<Orders>
             {
