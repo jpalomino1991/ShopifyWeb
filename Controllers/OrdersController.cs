@@ -51,7 +51,12 @@ namespace ShopifyWeb.Controllers
             }
             if (!string.IsNullOrEmpty(byName))
             {
-                List<Customer> customers = _context.Customer.Where(c => c.first_name.Contains(byName) || c.last_name.Contains(byName)).ToList();
+                orders = _context.Orders.Join(_context.Customer,
+                    o => o.customer_id,
+                    c => c.id,
+                    (o,c) => new { o,c })
+                    .Where(x => x.c.first_name.Contains(byName) || x.c.last_name.Contains(byName))
+                    .Select(x => x.o);
             }
             var filter = orders.OrderByDescending(p => p.created_at).Skip(ExcludeRecords).Take(pageSize);
 
@@ -107,19 +112,26 @@ namespace ShopifyWeb.Controllers
         }
 
         // GET: Orders/Edit/5
-        public async Task<IActionResult> Edit(string id)
+        public IActionResult Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var order = await _context.Orders.FindAsync(id);
-            if (order == null)
+            OrderDetail detail = new OrderDetail();
+            detail.Order = _context.Orders.Find(id);
+            List<Item> items = _context.Item.Where(i => i.order_id.Equals(id)).ToList();
+            detail.Bill = _context.BillAddress.Where(b => b.order_id.Equals(id)).FirstOrDefault();
+            detail.Ship = _context.ShipAddress.Where(s => s.order_id.Equals(id)).FirstOrDefault();
+            detail.Customer = _context.Customer.Where(c => c.id.Equals(detail.Order.customer_id)).FirstOrDefault();
+            detail.Items = items;
+
+            if (detail == null)
             {
                 return NotFound();
             }
-            return View(order);
+            return View(detail);
         }
 
         // POST: Orders/Edit/5

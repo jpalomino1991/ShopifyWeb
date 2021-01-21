@@ -1,94 +1,120 @@
-﻿@model ShopifyWeb.Models.Orders
+﻿@model ShopifyWeb.Models.OrderDetail
 
-<h4>Order</h4>
+<h4>Order @Model.Order.name</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-8">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="id" />
-            <div class="form-group">
-                <label asp-for="email" class="control-label"></label>
-                <input asp-for="email" class="form-control" />
-                <span asp-validation-for="email" class="text-danger"></span>
+            <input type="hidden" asp-for="@Model.Order.id" />
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label class="control-label">Correo</label>
+                        <input asp-for="@Model.Order.email" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label class="control-label">Fecha de Creación</label>
+                        <input asp-for="@Model.Order.created_at" class="form-control" readonly />
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="created_at" class="control-label"></label>
-                <input asp-for="created_at" class="form-control" />
-                <span asp-validation-for="created_at" class="text-danger"></span>
+            <div class="row">
+                <div class="col">
+                    <div class="form-group">
+                        <label class="control-label">Método de Pago</label>
+                        <input asp-for="@Model.Order.gateway" class="form-control" readonly />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label class="control-label">Estado de Pago</label>
+                        <input asp-for="@Model.Order.financial_status" class="form-control" readonly/>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="updated_at" class="control-label"></label>
-                <input asp-for="updated_at" class="form-control" />
-                <span asp-validation-for="updated_at" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="number" class="control-label"></label>
-                <input asp-for="number" class="form-control" />
-                <span asp-validation-for="number" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="token" class="control-label"></label>
-                <input asp-for="token" class="form-control" />
-                <span asp-validation-for="token" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="gateway" class="control-label"></label>
-                <input asp-for="gateway" class="form-control" />
-                <span asp-validation-for="gateway" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="total_price" class="control-label"></label>
-                <input asp-for="total_price" class="form-control" />
-                <span asp-validation-for="total_price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="subtotal_price" class="control-label"></label>
-                <input asp-for="subtotal_price" class="form-control" />
-                <span asp-validation-for="subtotal_price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="total_tax" class="control-label"></label>
-                <input asp-for="total_tax" class="form-control" />
-                <span asp-validation-for="total_tax" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="currency" class="control-label"></label>
-                <input asp-for="currency" class="form-control" />
-                <span asp-validation-for="currency" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="financial_status" class="control-label"></label>
-                <input asp-for="financial_status" class="form-control" />
-                <span asp-validation-for="financial_status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="total_discounts" class="control-label"></label>
-                <input asp-for="total_discounts" class="form-control" />
-                <span asp-validation-for="total_discounts" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="total_line_items_price" class="control-label"></label>
-                <input asp-for="total_line_items_price" class="form-control" />
-                <span asp-validation-for="total_line_items_price" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="name" class="control-label"></label>
-                <input asp-for="name" class="form-control" />
-                <span asp-validation-for="name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="order_number" class="control-label"></label>
-                <input asp-for="order_number" class="form-control" />
-                <span asp-validation-for="order_number" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+            <div class="row">
+                <div class="col">
+                    <p>Sub Total: @Model.Order.subtotal_price</p>
+                    <p>Impuestos: @Model.Order.total_tax</p>
+                    <p>Total: @Model.Order.total_price</p>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Cantidad</th>
+            <th>SKU</th>
+            <th>Precio</th>
+            <th>IGV</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 1; i <= Model.Items.Count(); i++)
+        {
+            
+        <tr>
+            <td>@i</td>
+            <td>@Model.Items[i-1].title</td>
+            <td>@Model.Items[i-1].quantity</td>
+            <td>@Model.Items[i-1].sku</td>
+            <td>@Model.Items[i-1].price</td>
+            <td>@Model.Items[i-1].tax_price</td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+<div class="row">
+    <div class="col">
+        <div class="card" style="width: 22rem;">
+            <div class="card-header">
+                Cliente
+            </div>
+            <div class="card-body">                
+                <p class="card-text">Nombre: @Model.Customer.first_name @Model.Customer.last_name</p>
+                <p class="card-text">Correo: @Model.Customer.email</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card" style="width: 22rem;">
+            <div class="card-header">
+                Dirección de Envio
+            </div>
+            <div class="card-body">
+                <p class="card-text">Nombre: @Model.Ship.name</p>
+                <p class="card-text">Dirección: @Model.Ship.address1 @Model.Ship.address2</p>
+                <p class="card-text">Teléfono: @Model.Ship.phone</p>
+                <p class="card-text">Departamento: @Model.Ship.province</p>
+                <p class="card-text">Ciudad: @Model.Ship.city</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card" style="width: 22rem;">
+            <div class="card-header">
+                Dirección de Facturación
+            </div>
+            <div class="card-body">
+                <p class="card-text">Nombre: @Model.Bill.name</p>
+                <p class="card-text">Dirección: @Model.Bill.address1 @Model.Bill.address2</p>
+                <p class="card-text">Teléfono: @Model.Bill.phone</p>
+                <p class="card-text">Departamento: @Model.Bill.province</p>
+                <p class="card-text">Ciudad: @Model.Bill.city</p>
+            </div>
+        </div>
+    </div>
 </div>
+
+    <div>
+        <a asp-action="Index">Regresar</a>
+    </div>
