@@ -2,49 +2,6 @@
 
 <h4>Order @Model.Order.name</h4>
 <hr />
-<div class="row">
-    <div class="col-md-8">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="@Model.Order.id" />
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label class="control-label">Correo</label>
-                        <input asp-for="@Model.Order.email" class="form-control" readonly />
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label class="control-label">Fecha de Creación</label>
-                        <input asp-for="@Model.Order.created_at" class="form-control" readonly />
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <div class="form-group">
-                        <label class="control-label">Método de Pago</label>
-                        <input asp-for="@Model.Order.gateway" class="form-control" readonly />
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
-                        <label class="control-label">Estado de Pago</label>
-                        <input asp-for="@Model.Order.financial_status" class="form-control" readonly/>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <p>Sub Total: @Model.Order.subtotal_price</p>
-                    <p>Impuestos: @Model.Order.total_tax</p>
-                    <p>Total: @Model.Order.total_price</p>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
 
 <table class="table table-striped table-bordered">
     <thead class="thead-dark">
@@ -74,14 +31,36 @@
 </table>
 
 <div class="row">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col">
+                <p>Estado de Pago: @Model.Order.financial_status</p>
+                <p>Método de Pago: @Model.Order.gateway</p>
+            </div>
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col">
+                <p>Sub Total: @Model.Order.subtotal_price</p>
+                <p>IGV: @Model.Order.total_tax</p>
+                <p>Total: @Model.Order.total_price</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
     <div class="col">
         <div class="card" style="width: 22rem;">
             <div class="card-header">
                 Cliente
             </div>
-            <div class="card-body">                
+            <div class="card-body">
                 <p class="card-text">Nombre: @Model.Customer.first_name @Model.Customer.last_name</p>
                 <p class="card-text">Correo: @Model.Customer.email</p>
+                <p class="card-text">DNI/RUC: @Model.Customer.default_address.company</p>
+                <p class="card-text">Dirección: @Model.Customer.default_address.address1 @Model.Customer.default_address.address2</p>
+                <p class="card-text">Departamento: @Model.Customer.default_address.province</p>
+                <p class="card-text">Ciudad: @Model.Customer.default_address.city</p>
             </div>
         </div>
     </div>

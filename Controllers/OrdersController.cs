@@ -125,6 +125,7 @@ namespace ShopifyWeb.Controllers
             detail.Bill = _context.BillAddress.Where(b => b.order_id.Equals(id)).FirstOrDefault();
             detail.Ship = _context.ShipAddress.Where(s => s.order_id.Equals(id)).FirstOrDefault();
             detail.Customer = _context.Customer.Where(c => c.id.Equals(detail.Order.customer_id)).FirstOrDefault();
+            detail.Customer.default_address = _context.CustomerAddress.Where(d => d.customer_id.Equals(detail.Order.customer_id)).FirstOrDefault();
             detail.Items = items;
 
             if (detail == null)
