@@ -21,6 +21,7 @@ namespace ShopifyWeb.Data
         public DbSet<Item> Item { get; set; }
         public DbSet<ShipAddress> ShipAddress { get; set; }
         public DbSet<BillAddress> BillAddress { get; set; }
+        public DbSet<Logs> Logs { get; set; }
         public DbSet<Product> Product { get; set; }
         public DbSet<ProductImage> ProductImage { get; set; }
         public DbSet<ProductTempImage> ProductTempImage { get; set; }
