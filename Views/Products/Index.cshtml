@@ -16,7 +16,7 @@
             <form asp-action="Create" method="get">
                 <div class="modal-body">
                     <label for="Nombre" class="control-label">Codigo Padre</label>
-                    <input type="text" name="SKU" value="" class="form-control" required/>
+                    <input type="text" name="SKU" value="" class="form-control" required />
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary">Crear</button>
@@ -81,6 +81,11 @@
     <a asp-action="Index">Quitar Filtro</a>
 </form>
 
+@using (Html.BeginForm("Download", "Products", FormMethod.Post))
+{
+    <input type="submit" id="btnSubmit" class="btn-info" value="Descargar" />
+}
+
 <table class="table table-striped table-bordered">
     <thead class="thead-dark">
         <tr>
@@ -131,8 +136,8 @@
 </table>
 
 <partial name="_PaginationPartial" view-data="ViewData" model="Model" /> <p>Total : @Model.TotalItems</p>
-<partial name="_ConfirmDeletePartial"/>
-<partial name="_SuccessModalPartial"/>
+<partial name="_ConfirmDeletePartial" />
+<partial name="_SuccessModalPartial" />
 
 @section Scripts {
     <script>
@@ -146,7 +151,7 @@
             $('#deleteProductId').val(this.id);
             $('#deleteModal').modal('show');
         });
-        $('#confirmDelete').click(function () {            
+        $('#confirmDelete').click(function () {
             $.ajax({
                 method: 'post',
                 url: '/Products/Delete/' + $('#deleteProductId').val(),

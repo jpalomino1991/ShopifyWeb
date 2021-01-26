@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using cloudscribe.Pagination.Models;
@@ -402,6 +403,33 @@ namespace ShopifyWeb.Controllers
                 }
             }
             return result;
+        }
+
+        [HttpPost]
+        public FileResult Download()
+        {
+            List<object> customers = (from product in _context.Product.Where(p => p.ParentId == null).ToList()
+                                      select new[] { product.Title,
+                                                            product.SKU,
+                                                            product.Tags,
+                                                            product.Id,
+                                                            product.ProductType
+                                }).ToList<object>();
+
+            customers.Insert(0, new string[5] { "Titulo", "SKU", "Tags", "Id de Shopify", "Tipo de Producto" });
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < customers.Count; i++)
+            {
+                string[] customer = (string[])customers[i];
+                for (int j = 0; j < customer.Length; j++)
+                {
+                    sb.Append(customer[j] + ';');
+                }
+                sb.Append("\r\n");
+            }
+
+            return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "Product.csv");
         }
 
         // POST: Products/Edit/5
