@@ -12,5 +12,6 @@ namespace ShopifyWeb.Models
         public BillAddress Bill { get; set; }
         public ShipAddress Ship { get; set; }
         public Customer Customer { get; set; }
+        public List<OrderStatus> Status { get; set; }
     }
 }

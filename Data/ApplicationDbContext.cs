@@ -16,6 +16,7 @@ namespace ShopifyWeb.Data
         }
 
         public DbSet<Orders> Orders { get; set; }
+        public DbSet<OrderStatus> OrderStatus { get; set; }
         public DbSet<Customer> Customer { get; set; }
         public DbSet<CustomerAddress> CustomerAddress { get; set; }
         public DbSet<Item> Item { get; set; }

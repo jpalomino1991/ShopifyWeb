@@ -27,7 +27,7 @@
     </div>
 </div>
 
-<form asp-action="Index" method="get">
+<form asp-action="Index" method="get" id="filtros">
     <h4>Buscar Por: </h4>
     <div class="row">
         <div class="col">
@@ -81,10 +81,7 @@
     <a asp-action="Index">Quitar Filtro</a>
 </form>
 
-@using (Html.BeginForm("Download", "Products", FormMethod.Post))
-{
-    <input type="submit" id="btnSubmit" class="btn-info" value="Descargar" />
-}
+<button class="btn-info" id="descargar">Descargar</button>
 
 <table class="table table-striped table-bordered">
     <thead class="thead-dark">
@@ -138,6 +135,7 @@
 <partial name="_PaginationPartial" view-data="ViewData" model="Model" /> <p>Total : @Model.TotalItems</p>
 <partial name="_ConfirmDeletePartial" />
 <partial name="_SuccessModalPartial" />
+<partial name="_LoadingPartial" />
 
 @section Scripts {
     <script>
@@ -159,6 +157,35 @@
                 success: function () {
                     setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
                     $('#successModal').modal('show');
+                },
+                error: function (err) {
+                    setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
+                    alert(err.responseText);
+                }
+            });
+            $('#deleteModal').modal('hide');
+        });
+        $('#descargar').click(function (e) {
+            e.preventDefault();
+            $('#staticBackdrop').modal('show');
+            var result = $('#filtros').serialize();
+            $.ajax({
+                method: 'post',
+                url: '/Products/Download/',
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                data: result,
+                success: function (data) {
+                    var a = document.createElement('a');
+                    var url = window.URL.createObjectURL(data);
+                    a.href = url;
+                    a.download = 'Products.csv';
+                    document.body.append(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                    setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);                    
                 },
                 error: function (err) {
                     setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);

@@ -155,7 +155,7 @@ namespace ShopifyWeb.Controllers
                         else
                             ps.ProductType = parent.SegmentoNivel4;
                         ps.Description = String.Format(body, col, mar, parent.Taco, mat, matI, matS, parent.HechoEn, cp);
-                        ps.Tags = $"{ps.ProductType},{mat},{col},{cp},{mat.Replace(' ', ',')},{mar},{parent.SegmentoNivel1},{(sex != parent.SegmentoNivel2 ? "Kids," + sex : sex)},{parent.SegmentoNivel4},{parent.CodigoPadre},{ten},{oca},{parent.Taco}";
+                        ps.Tags = $"{ps.ProductType},{mat},{col},{cp},{mat.Replace(' ', ',')},{mar},{parent.SegmentoNivel1},{(sex == "Unisex" ? "Hombre,Mujer" : (sex != parent.SegmentoNivel2 ? "Kids," + sex : sex))},{parent.SegmentoNivel4},{parent.CodigoPadre},{ten},{oca},{parent.Taco}";
                         ps.Handle = $"{cp}-{parent.SegmentoNivel4}-{sex}-{col}-{mar}";
 
                         if (parent.SegmentoNivel4 == "Pantuflas" || parent.SegmentoNivel4 == "Alpargatas")
@@ -406,9 +406,23 @@ namespace ShopifyWeb.Controllers
         }
 
         [HttpPost]
-        public FileResult Download()
+        public FileResult Download(string byName, string BySKU, string byVendor, string byType, string byStock)
         {
-            List<object> customers = (from product in _context.Product.Where(p => p.ParentId == null).ToList()
+            var products = _context.Product.Where(p => p.ParentId == null);
+            if (!string.IsNullOrEmpty(byName))
+                products = products.Where(p => p.Title.Contains(byName));
+            if (!string.IsNullOrEmpty(BySKU))
+                products = products.Where(p => p.SKU.Contains(BySKU));
+            if (!string.IsNullOrEmpty(byType))
+                products = products.Where(p => p.ProductType.Contains(byType));
+            if (!string.IsNullOrEmpty(byVendor))
+                products = products.Where(p => p.Vendor.Contains(byVendor));
+            if (byStock == "2")
+                products = products.Where(p => p.Status == "active");
+            if (byStock == "3")
+                products = products.Where(p => p.Status == "draft");
+
+            List<object> customers = (from product in products.ToList()
                                       select new[] { product.Title,
                                                             product.SKU,
                                                             product.Tags,

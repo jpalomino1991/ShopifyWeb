@@ -32,7 +32,7 @@ namespace ShopifyWeb.Controllers
 
             int ExcludeRecords = (pageSize * pageNumber) - pageSize;
 
-            var filter = logs.OrderBy(p => p.DateStart).Skip(ExcludeRecords).Take(pageSize);
+            var filter = logs.OrderByDescending(p => p.DateStart).Skip(ExcludeRecords).Take(pageSize);
 
             var result = new PagedResult<Logs>
             {

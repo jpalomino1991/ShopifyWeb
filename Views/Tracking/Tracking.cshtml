@@ -1,0 +1,145 @@
+﻿@model ShopifyWeb.Models.OrderDetail
+
+<nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><img src="~/img/logo.png" height="40"></a>
+        <form class="form-inline  my-2 my-lg-0">
+            <a class="btn btn-sm btn-outline-secondary bordercolor_kellys btn_goToKellys" href="https://kellys.com.pe" target="_blank">Visitar sitio</a>
+        </form>
+    </div>
+</nav>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3 container_seguimiento">
+
+            <div class="container_head_detail">
+                <h2>Seguimiento de pedido</h2>
+                <p><span>Orden del pedido: </span><span id="numeroPedido"><strong>@Model.Order.order_number</strong></span></p>
+                <p><span>Fecha del pedido: </span><span id="fechaPedido"><strong>@Model.Order.created_at.ToShortDateString()</strong></span></p>
+            </div>
+
+
+            <div class="card" style="width: 100%">
+                <div class="card-body">
+
+                    <div class="containerStatus">
+                        <div class="barra">
+                            <div class="progress">
+                                <div class="statusPointer bgcolor_kellys"></div>
+                                <div class="progress-bar bgcolor_kellys" role="progressbar" style="width: 0%" aria-valuemin="0" aria-valuemax="100" id="progresoPedido"></div>
+                            </div>
+                        </div>
+                        <div class="statusInfo row" id="statusInfo">
+                            <div class="statusInfo row" id="statusInfo">
+                                @if (Model.Order.status == "Cancelado")
+                                {
+                                    <span class="col text-center statusPedido @Model.Status[0].Active" data-percentage="0%">
+                                        <div class="lblInfo">Recibimos su pedido</div>
+                                        <div class="fechaInfo">@Model.Status[0].Date</div>
+                                    </span>
+                                    <span class="col text-center statusPedido @Model.Status[1].Active" data-percentage="50%">
+                                        <div class="lblInfo">Pago confirmado</div>
+                                        <div class="fechaInfo">@Model.Status[1].Date</div>
+                                    </span>
+                                    <span class="col text-center statusPedido @Model.Status[2].Active" data-percentage="100%">
+                                        <div class="lblInfo">Cancelado</div>
+                                        <div class="fechaInfo">@Model.Status[2].Date</div >
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="col text-center statusPedido @Model.Status[0].Active" data-percentage="8%">
+                                        <div class="lblInfo">Recibimos su pedido</div>
+                                        <div class="fechaInfo">@Model.Status[0].Date</div>
+                                    </span>
+                                    <span class="col text-center statusPedido @Model.Status[1].Active" data-percentage="28%">
+                                        <div class="lblInfo">Pago confirmado</div>
+                                        <div class="fechaInfo">@Model.Status[1].Date</div>
+                                    </span>
+                                    <span class="col text-center statusPedido @Model.Status[2].Active" data-percentage="48%">
+                                        <div class="lblInfo">Preparando pedido</div>
+                                        <div class="fechaInfo">@Model.Status[2].Date</div>
+                                    </span>
+                                    <span class="col text-center statusPedido @Model.Status[3].Active" data-percentage="68%">
+                                        <div class="lblInfo">Pedido empacado</div>
+                                        <div class="fechaInfo">@Model.Status[3].Date</div>
+                                    </span>
+                                    <span class="col text-center statusPedido @Model.Status[4].Active" data-percentage="95%">
+                                        <div class="lblInfo">Pedido entregado</div>
+                                        <div class="fechaInfo">@Model.Status[4].Date</div>
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <h4>Información del pedido</h4>
+                                    <div id="informacionPedido" class="row">
+                                        @foreach (Item item in Model.Items)
+                                        {
+                                            <div class="col-md-6">
+                                                <span class="nombreProducto">@item.title</span>
+                                            </div>
+                                            <div class="col-md-6 text-lg-right">
+                                                SKU: <span>@item.sku</span>
+                                                CANTIDAD: <span>@item.quantity</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <h4>Información de despacho</h4>
+                                    <div id="direccionDespacho" class="row">
+                                        <div class="col-md-4">
+                                            <span class="lblCard">Dirección de despacho</span>
+                                        </div>
+                                        <div class="col-md-8 text-lg-right">
+                                            <span class="direccionDespacho">@Model.Ship.address1, @Model.Ship.city</span>
+                                        </div>
+                                    </div>
+                                    <div id="fechaEntrega" class="row">
+                                        <div class="col-md-4">
+                                            <span class="lblCard">Fecha de entrega</span>
+                                        </div>
+                                        <div class="col-md-8 text-lg-right">
+                                            Recibe entre<span class="fechaEntrega1">22/01/2021</span> y el <span class="fechaEntrega2">28/01/2021</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <button type="button" class="btn btn-primary bgcolor_kellys bordercolor_kellys" onclick="window.history.back();">Regresar</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.statusPedido').each(function () {
+                if ($(this).hasClass('active')) {
+                    var percentage = $(this).attr('data-percentage');
+
+                    $("#progresoPedido").css({ width: percentage });
+                    $(".statusPointer").css({ left: percentage });
+
+                    console.log(percentage);
+                }
+            });
+
+
+        });
+    </script>
+}

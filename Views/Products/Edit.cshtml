@@ -152,7 +152,6 @@
                 $('#staticBackdrop').modal('show');
                 e.preventDefault();
                 var result = $('#EditProduct').serialize();
-                console.log($('input[name="__RequestVerificationToken"]').last().val());
 
                 $.ajax({
                     method: 'post',

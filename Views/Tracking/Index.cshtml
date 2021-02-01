@@ -1,0 +1,65 @@
+﻿<nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#"><img src="~/img/logo.png" height="40"></a>
+        <form class="form-inline  my-2 my-lg-0">
+            <a class="btn btn-sm btn-outline-secondary btn_goToKellys" href="https://kellys.com.pe" target="_blank">Visitar sitio</a>
+        </form>
+    </div>
+</nav>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3 container_seguimiento">
+
+            <h2>Seguimiento de pedido</h2>
+            <p><strong>Rastrear pedido</strong></p>
+
+            <div class="alert alert-warning hide" role="alert" id="error">
+                Nº de seguimiento <span class="alert-link" id="orderNumber"></span> no encontrado. Por favor intentelo nuevamente.
+            </div>
+
+            <div class="card" style="width: 100%">
+                <div class="card-body">
+
+                    <form id="seguimiento">
+                        <h5 class="card-title"></h5>
+                        <p class="card-text">Introduce tu número de pedido para ver el estado actual del pedido.</p>
+                        <div class="form-group">
+                            <label for="numeroSeguimiento">Número de pedido</label>
+                            <input type="text" class="form-control" name="orderId" id="numeroSeguimiento" aria-describedby="desc_numeroSeguimiento" placeholder="1121">
+                            <small id="desc_numeroSeguimiento" class="form-text text-muted hide">Verifique el número de pedido en su correo.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary bgcolor_kellys bordercolor_kellys align-right" id="track">Realizar seguimiento</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<partial name="_LoadingPartial" />
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#track').click(function (e) {
+                e.preventDefault();
+                $('#staticBackdrop').modal('show');
+                $.ajax({
+                    method: 'post',
+                    url: '/Tracking/Index',
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').last().val() },
+                    data: $('#seguimiento').serialize(),
+                    success: function () {
+                        window.location.href = "/Tracking/Tracking/" + $('#numeroSeguimiento').val();
+                    },
+                    error: function (err) {
+                        setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
+                        $('#orderNumber').text($('#numeroSeguimiento').val());
+                        $('#error').removeClass("hide");
+                    }
+                });
+            });            
+        });
+    </script>
+}
