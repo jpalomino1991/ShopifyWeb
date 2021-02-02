@@ -3,7 +3,8 @@
 	display: none !important;
 }
 .txtcolor_kellys,
-.btn_goToKellys{
+.btn_goToKellys,
+.nav-link{
 	color: #f7a32d !important;
 }
 .btn_goToKellys:hover{
@@ -62,7 +63,7 @@
 .progress-bar{
 	transition: all 0.6s;
 }
-td {
+.containerStatus td {
     margin-bottom: 15px;
     display: block;
 }
@@ -88,13 +89,15 @@ td {
 	    width: 100%;
 	    flex: initial;
 	}
-	h2{
+	.container_seguimiento h2{
 		font-size: calc(1.325rem + .25vw);
 	}
 	.container_head_detail span{
 		display: block;
 	}
 }
+/*end seguimiento*/
+
 @media (min-width: 768px){
 	nav.navbar.flex-md-nowrap.navbar-dark.bg-dark {
     	background-color: #ffffff!important;
@@ -104,13 +107,17 @@ td {
 		text-align: right;
 	}
 }
-
-/*end seguimiento*/
-
 .navbar-dark .navbar-nav .nav-link {
     color: #0366d6 !important;
 }
-main.col-md-9.ml-sm-auto.col-lg-10.px-md-4{
+main{
 	padding-top: 10px;
 
+}
+main > form{
+	padding-bottom: 20px;
+}
+.btn-info {
+    padding: .375rem .75rem;
+    border-radius: .25rem;
 }
