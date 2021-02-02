@@ -1,1 +1,116 @@
-﻿
+﻿/*seguimiento*/
+.hide{
+	display: none !important;
+}
+.txtcolor_kellys,
+.btn_goToKellys{
+	color: #f7a32d !important;
+}
+.btn_goToKellys:hover{
+	color: #ffffff !important;
+}
+.bgcolor_kellys,
+.btn-outline-secondary:hover{
+	background-color: #f7a32d !important;
+}
+.bordercolor_kellys{
+	border-color: #f7a32d !important;
+}
+.form-group {
+	margin-bottom: 15px;
+}
+.align-right{
+	float: right;
+}
+.container_seguimiento{
+	margin-top: 20px;
+}
+
+@media (min-width: 768px){
+	.text-lg-right {
+    	text-align: right;
+	}
+}
+.lblCard{
+	color: #999;
+}
+.statusPointer{
+	width: 35px;
+	height: 35px;
+	border-radius: 20px;
+	border: 5px solid #fff;
+	box-shadow: 0px 2px 5px #0000005c;
+	position: absolute;
+	top: -10px;
+	left: 0%;
+	transition: all 0.6s;
+}
+.fechaInfo{
+	color: #999;
+}
+.active .lblInfo{
+	font-weight: bold;
+}
+.barra{
+	position: relative;
+	margin-top: 40px;
+	margin-bottom: 20px;
+}
+.containerStatus{
+	margin-bottom: 30px;
+}
+.progress-bar{
+	transition: all 0.6s;
+}
+td {
+    margin-bottom: 15px;
+    display: block;
+}
+.container_head_detail{
+	background-image: url(../img/icon_tracking.svg);
+	background-size: 76px 76px;
+	background-repeat: no-repeat;
+	background-position: right;
+}
+@media all and (max-width: 767px){
+	.barra {
+	    transform: rotate(90deg);
+	    width: 220px;
+	    position: absolute;
+	    left: -45px;
+	    top: 85px;
+	}
+	.statusInfo.row {
+	    width: 65%;
+	    float: right;
+	}
+	span.statusPedido {
+	    width: 100%;
+	    flex: initial;
+	}
+	h2{
+		font-size: calc(1.325rem + .25vw);
+	}
+	.container_head_detail span{
+		display: block;
+	}
+}
+@media (min-width: 768px){
+	nav.navbar.flex-md-nowrap.navbar-dark.bg-dark {
+    	background-color: #ffffff!important;
+    	box-shadow: 0px 1px 2px #00000024;
+	}
+	.text-lg-right{
+		text-align: right;
+	}
+}
+
+/*end seguimiento*/
+
+.navbar-dark .navbar-nav .nav-link {
+    color: #0366d6 !important;
+}
+main.col-md-9.ml-sm-auto.col-lg-10.px-md-4{
+	padding-top: 10px;
+
+}
