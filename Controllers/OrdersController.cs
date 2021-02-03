@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using RestSharp;
+using RestSharp.Authenticators;
 using ShopifyWeb.Data;
 using ShopifyWeb.Helpers;
 using ShopifyWeb.Models;
@@ -130,6 +133,7 @@ namespace ShopifyWeb.Controllers
             detail.Customer = _context.Customer.Where(c => c.id.Equals(detail.Order.customer_id)).FirstOrDefault();
             detail.Customer.default_address = _context.CustomerAddress.Where(d => d.customer_id.Equals(detail.Order.customer_id)).FirstOrDefault();
             detail.Items = items;
+            detail.Combo = getStateValues(detail.Order.status);
 
             if (detail == null)
             {
@@ -138,39 +142,164 @@ namespace ShopifyWeb.Controllers
             return View(detail);
         }
 
+        public List<string> getStateValues(string state)
+        {
+            List<string> lst = new List<string>();
+            switch(state)
+            {
+                case "Recibimos su pedido":
+                    lst.Add(state);
+                    break;
+                case "Pago confirmado":
+                    lst.Add(state);
+                    lst.Add("Preparando pedido");
+                    break;
+                case "Preparando pedido":
+                    lst.Add(state);
+                    lst.Add("Pedido enviado");
+                    lst.Add("Recojo en tienda");
+                    break;
+                case "Recojo en tienda":
+                    lst.Add(state);
+                    break;
+                case "Pedido enviado":
+                    lst.Add(state);
+                    lst.Add("Pedido entregado");
+                    break;
+                case "Pedido entregado":
+                    lst.Add(state);
+                    break;
+                case "Cancelado":
+                    lst.Add(state);
+                    break;
+            }
+            return lst;
+        }
+
         // POST: Orders/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("id,email,created_at,updated_at,number,token,gateway,total_price,subtotal_price,total_tax,currency,financial_status,total_discounts,total_line_items_price,name,order_number")] Orders order)
+        public IActionResult Edit(string id,string byState)
         {
-            if (id != order.id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
+                    Orders order = new Orders();
+                    order = _context.Orders.Find(id);
+                    order.status = byState;
+                    order.updated_at = DateTime.Now;
+
+                    OrderStatus status = new OrderStatus();
+                    status.OrderId = id;
+                    status.Status = byState;
+                    status.CreateDate = DateTime.Now;
+
+                    if(byState != "Pago confirmado" || byState != "Recibimos su recibido")//update with the fulfillment api
+                    {
+                        if(string.IsNullOrEmpty(order.fulfillment_id))
+                        {
+                            createFulfillment(order);
+                        }
+                        /*string stat = getStateForShopify(byState);
+                        dynamic jOrder = new
+                        {
+                            @event = new
+                            {
+                                status = stat
+                            }
+                        };
+                        IRestResponse response = CallShopify($"orders/{order.id}/fulfillments/{order.fulfillment_id}/events.json", Method.POST, jOrder);
+                        if (response.StatusCode.ToString().Equals("Created"))
+                            _logger.LogInformation("Status updated");
+                        else
+                        {
+                            return NotFound();
+                        }*/
+                    }
+
+                    _context.OrderStatus.Add(status);
+                    _context.Orders.Update(order);
+
+                    _context.SaveChanges();
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception e)
                 {
-                    if (!OrderExists(order.id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound(e);
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
+                return Ok();//RedirectToAction(nameof(Index));
             }
-            return View(order);
+            return View();
+        }
+
+        public string getStateName(string id)
+        {
+            switch(id)
+            {
+                case "1":
+                    return "Recibimos su pedido";
+                case "2":
+                    return "Pedido confirmado";
+                case "3":
+                    return "Preparando pedido";
+                case "4":
+                    return "Pedido enviado";
+                case "5":
+                    return "Pedido entregado";
+                case "6":
+                    return "Cancelado";
+            }
+            return "";
+        }
+
+        public string getStateForShopify(string id)
+        {
+            switch (id)
+            {
+                case "Preparando pedido":
+                    return "confirmed";
+                case "Pedido enviado":
+                    return "out_for_delivery";
+                case "Pedido entregado":
+                    return "delivered";
+            }
+            return "";
+        }
+
+        public void createFulfillment(Orders order)
+        {
+            Fulfillment f = new Fulfillment();
+            Web web = _context.Web.Find(1);
+            f.location_id = web.LocationId;
+            f.tracking_number = null;
+
+            List<LineItem> lst = new List<LineItem>();
+            List<Item> lstItem = _context.Item.Where(i => i.order_id == order.id).ToList();
+            foreach(Item item in lstItem)
+            {
+                LineItem line = new LineItem();
+                line.id = item.id;
+                lst.Add(line);
+            }
+            f.line_items = lst;
+
+            dynamic oFulfillment = new
+            {
+                fulfillment = f
+            };
+
+            IRestResponse response = CallShopify($"orders/{order.id}/fulfillments.json", Method.POST, oFulfillment);
+
+            if (response.StatusCode.ToString().Equals("Created"))
+            {
+                MasterFulfillment mf = JsonConvert.DeserializeObject<MasterFulfillment>(response.Content);
+                order.fulfillment_id = mf.fulfillment.id;
+            }
+            else
+                _logger.LogError($"Error creating fulfillment");
         }
 
         // GET: Orders/Delete/5
@@ -205,6 +334,41 @@ namespace ShopifyWeb.Controllers
         private bool OrderExists(string id)
         {
             return _context.Orders.Any(e => e.id == id);
+        }
+
+        public IRestResponse CallShopify(string resource, RestSharp.Method method, dynamic parameters)
+        {
+            try
+            {
+                Web web = _context.Web.Find(1);
+                Uri url = new Uri(web.WebURL);
+                RestClient rest = new RestClient(url);
+                rest.Authenticator = new HttpBasicAuthenticator(web.WebAPI, web.WebPassword);
+
+                RestRequest request = new RestRequest(resource, method);
+                request.AddHeader("header", "Content-Type: application/json");
+
+                if (parameters != null)
+                {
+                    dynamic JsonObj = JsonConvert.SerializeObject(parameters);
+                    request.AddParameter("application/json", JsonObj, ParameterType.RequestBody);
+                }
+
+                IRestResponse response = rest.Execute(request);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests || response.StatusCode.ToString().Equals("520"))
+                {
+                    System.Threading.Thread.Sleep(5000);
+                    return CallShopify(resource, method, parameters);
+                }
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("Error calling API", e);
+                return null;
+            }
         }
     }
 }

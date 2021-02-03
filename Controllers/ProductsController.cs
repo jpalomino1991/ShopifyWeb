@@ -669,6 +669,13 @@ namespace ShopifyWeb.Controllers
                 }
 
                 IRestResponse response = rest.Execute(request);
+
+                if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests || response.StatusCode.ToString().Equals("520"))
+                {
+                    System.Threading.Thread.Sleep(5000);
+                    return CallShopify(resource, method, parameters);
+                }
+
                 return response;
             }
             catch (Exception e)

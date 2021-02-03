@@ -27,5 +27,6 @@ namespace ShopifyWeb.Models
 		public string fulfillment_status { get; set; }
 		public string status { get; set; }
 		public string fechaEstimada { get; set; }
+		public string fulfillment_id { get; set; }
 	}
 }

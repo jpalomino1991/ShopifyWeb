@@ -6,9 +6,11 @@
     ViewData["Action"] = "Index";
 }
 
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal">
-    Nuevo Producto
-</button>
+<div class="btnNuevoProducto">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal">
+        Nuevo Producto
+    </button>
+</div>
 
 <div class="modal fade" id="createModal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -81,7 +83,9 @@
     <a asp-action="Index">Quitar Filtro</a>
 </form>
 
-<button class="btn-info" id="descargar">Descargar</button>
+<div class="btnDescargarProducto">
+    <button class="btn-info" id="descargar">Descargar</button>
+</div>
 
 <table class="table table-striped table-bordered">
     <thead class="thead-dark">

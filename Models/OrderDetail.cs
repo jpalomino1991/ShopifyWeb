@@ -13,5 +13,6 @@ namespace ShopifyWeb.Models
         public ShipAddress Ship { get; set; }
         public Customer Customer { get; set; }
         public List<OrderStatus> Status { get; set; }
+        public List<string> Combo { get; set; }
     }
 }
