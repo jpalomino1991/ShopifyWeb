@@ -25,7 +25,6 @@ namespace ShopifyWeb.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult Index(string orderId)
         {
             if (_context.Orders.Any(o => o.order_number == orderId))
@@ -55,7 +54,7 @@ namespace ShopifyWeb.Controllers
         public List<OrderStatus> generateList(Orders order)
         {
             List<OrderStatus> ls = new List<OrderStatus>();
-            string[] defaultStatus = { "Recibimos su pedido", "Pago confirmado", "Preparando pedido", "Pedido empacado", "Pedido entregado" };
+            string[] defaultStatus = { "Recibimos su pedido", "Pago confirmado", "Preparando pedido", "Pedido enviado", "Pedido entregado" };
             string[] cancelStatus = {"Recibimos su pedido", "Pago confirmado", "Cancelado"};
 
             if (order.status == "Cancelado")

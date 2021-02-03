@@ -1,8 +1,9 @@
-﻿de{
+﻿.hide{
 	display: none !important;
 }
 .txtcolor_kellys,
-.btn_goToKellys{
+.btn_goToKellys,
+.nav-link{
 	color: #f7a32d !important;
 }
 .btn_goToKellys:hover{
@@ -96,4 +97,11 @@
 	.container_head_detail span{
 		display: block;
 	}
+}
+main.col-md-9.ml-sm-auto.col-lg-10.px-md-4 {
+    padding-top: 20px;
+}
+nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
+    background-color: #ffffff !important;
+    box-shadow: 0px 1px 3px #00000040;
 }

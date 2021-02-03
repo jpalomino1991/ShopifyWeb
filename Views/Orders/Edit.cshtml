@@ -137,7 +137,7 @@
                     data: $('#formulario').serialize(),
                     headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').last().val() },
                     success: function () {
-                        location.reload();
+                        window.location.reload();
                     },
                     error: function (err) {
                         setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
