@@ -203,7 +203,7 @@ namespace ShopifyWeb.Controllers
                         {
                             createFulfillment(order);
                         }
-                        /*string stat = getStateForShopify(byState);
+                        string stat = getStateForShopify(byState);
                         dynamic jOrder = new
                         {
                             @event = new
@@ -217,7 +217,7 @@ namespace ShopifyWeb.Controllers
                         else
                         {
                             return NotFound();
-                        }*/
+                        }
                     }
 
                     _context.OrderStatus.Add(status);
