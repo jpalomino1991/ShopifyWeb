@@ -31,6 +31,7 @@ namespace ShopifyWeb.Data
         public DbSet<ProductType> ProductType { get; set; }
         public virtual DbSet<ProductKelly> ProductKelly { get; set; }
         public virtual DbSet<KellyChild> KellyChild { get; set; }
+        public virtual DbSet<ProductDownload> ProductDownload { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -46,6 +47,11 @@ namespace ShopifyWeb.Data
                 {
                     eb.HasNoKey();
                     eb.ToTable("KellyChild");
+                })
+                .Entity<ProductDownload>(eb =>
+                {
+                    eb.HasNoKey();
+                    eb.ToTable("ProductDownload");
                 });
         }
     }

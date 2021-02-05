@@ -408,38 +408,25 @@ namespace ShopifyWeb.Controllers
         [HttpPost]
         public FileResult Download(string byName, string BySKU, string byVendor, string byType, string byStock)
         {
-            var products = _context.Product.Where(p => p.ParentId == null);
-            if (!string.IsNullOrEmpty(byName))
-                products = products.Where(p => p.Title.Contains(byName));
-            if (!string.IsNullOrEmpty(BySKU))
-                products = products.Where(p => p.SKU.Contains(BySKU));
-            if (!string.IsNullOrEmpty(byType))
-                products = products.Where(p => p.ProductType.Contains(byType));
-            if (!string.IsNullOrEmpty(byVendor))
-                products = products.Where(p => p.Vendor.Contains(byVendor));
-            if (byStock == "2")
-                products = products.Where(p => p.Status == "active");
-            if (byStock == "3")
-                products = products.Where(p => p.Status == "draft");
+            if (string.IsNullOrEmpty(byStock))
+                byStock = "1";
+            List<ProductDownload> products = _context.ProductDownload.FromSqlInterpolated($"GetProductForDownload @byName = {(string.IsNullOrEmpty(byName) ? 0 : 1)},@Name = {(string.IsNullOrEmpty(byName) ? "" : byName)},@bySKU = {(string.IsNullOrEmpty(BySKU) ? 0 : 1)},@SKU = {(string.IsNullOrEmpty(BySKU) ? "" : BySKU)},@byVendor = {(string.IsNullOrEmpty(byVendor) ? 0 : 1)},@Vendor = {(string.IsNullOrEmpty(byVendor) ? "" : byVendor)},@byType = {(string.IsNullOrEmpty(byType) ? 0 : 1)},@Type = {(string.IsNullOrEmpty(byType) ? "" : byType)},@byStock = {(byStock == "1" ? 0 : 1)},@Stock = {(byStock == "2" ? "active" : "draft")}").ToList();
 
-            List<object> customers = (from product in products.ToList()
-                                      select new[] { product.Title,
-                                                            product.SKU,
-                                                            product.Tags,
-                                                            product.Id,
-                                                            product.ProductType
-                                }).ToList<object>();
-
-            customers.Insert(0, new string[5] { "Titulo", "SKU", "Tags", "Id de Shopify", "Tipo de Producto" });
+            List<object> customers = new List<object>();
+            customers.Insert(0, new string[24] { "SKU", "Handle","Titulo", "Tags", "Id de Shopify", "Tipo de Producto", "Proveedor", "Titulo SEO", "Metadescripcion", "URL", "Talla", "Stock", "Precio", "Precio Promocion", "Color Padre", "Material", "Taco", "Genero", "Ocasion", "Tendencia", "Departamento", "Estado", "Cantidad de Imagenes", "Fecha de Creacion" });
 
             StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < customers.Count; i++)
+
+            object[] customer = (object[])customers[0];
+            for (int j = 0; j < customer.Length; j++)
             {
-                string[] customer = (string[])customers[i];
-                for (int j = 0; j < customer.Length; j++)
-                {
-                    sb.Append(customer[j] + ';');
-                }
+                sb.Append(customer[j].ToString() + ';');
+            }
+            sb.Append("\r\n");
+
+            foreach(ProductDownload p in products)
+            {
+                sb.Append(p.ToLine());
                 sb.Append("\r\n");
             }
 
