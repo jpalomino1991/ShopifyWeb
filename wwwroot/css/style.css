@@ -1,9 +1,11 @@
-﻿.hide{
+.hide{
 	display: none !important;
 }
-.txtcolor_kellys,
-.btn_goToKellys,
-.nav-link{
+nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
+    background-color: #ffffff !important;
+    box-shadow: 0px 1px 3px #00000040;
+}
+.txtcolor_kellys, .btn_goToKellys, .nav-link{
 	color: #f7a32d !important;
 }
 .btn_goToKellys:hover{
@@ -35,17 +37,31 @@
 	color: #999;
 }
 .statusPointer{
-	width: 35px;
-	height: 35px;
-	border-radius: 20px;
-	border: 5px solid #fff;
-	box-shadow: 0px 2px 5px #0000005c;
-	position: absolute;
-	top: -10px;
-	left: 0%;
-	transition: all 0.6s;
+	width: 45px;
+    height: 45px;
+    border-radius: 22.5px;
+    border: 5px solid #fff;
+    box-shadow: 0px 2px 5px #0000005c;
+    position: absolute;
+    top: -15px;
+    left: 0%;
+    transition: all 0.75s;
 }
-.fechaInfo{
+.statusPointer:before{
+    content: '';
+    background-image: url(../img/bag.svg);
+    background-size: 20px;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 35px;
+    height: 33px;
+    z-index: 10;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.fechaInfo,
+.horaInfo{
 	color: #999;
 }
 .active .lblInfo{
@@ -58,14 +74,12 @@
 }
 .containerStatus{
 	margin-bottom: 30px;
+	position: relative;
 }
 .progress-bar{
 	transition: all 0.6s;
 }
 .containerStatus td {
-    margin-bottom: 15px;
-    display: block;
-} {
     margin-bottom: 15px;
     display: block;
 }
@@ -75,33 +89,70 @@
 	background-repeat: no-repeat;
 	background-position: right;
 }
+
+/*optimzisaciones*/
+@media all and (max-width: 1200px){
+	.statusInfoPickUp  span.statusPedido {
+	    font-size: 80%;
+	    max-width: 20% ;
+	}
+}
+
 @media all and (max-width: 767px){
 	.barra {
-	    transform: rotate(90deg);
-	    width: 220px;
+	    width: 50%;
+	    display: inline-block;
+	    vertical-align: top;
 	    position: absolute;
-	    left: -45px;
-	    top: 85px;
+        left: -160px;
+    	top: 108px;
+	}
+	.barra .progress {
+	    transform: rotate(90deg) translateX(90px);
+	    overflow: initial;
+	}
+	.statusPointer:before{
+	    transform: rotate(-90deg);
+	    width: 33px;
+    	height: 35px;
 	}
 	.statusInfo.row {
 	    width: 65%;
 	    float: right;
 	}
-	span.statusPedido {
-	    width: 100%;
+	.statusInfoShipping,
+	.statusInfoPickUp  {
+        width: 50%;
+	    max-width: 50%;
 	    flex: initial;
+	    font-size: 100%;
+	    display: inline-block;
+	    float: right;
+	    margin-right: 20px;
 	}
-	.container_seguimiento h2 {
+	.statusInfoPickUp  span.statusPedido{
+		font-size: 100%;
+		width: 100%;
+	}
+	.statusPedido {
+		width: 100%;
+		flex: initial;
+	}
+	.container_seguimiento h2{
 		font-size: calc(1.325rem + .25vw);
 	}
 	.container_head_detail span{
 		display: block;
 	}
 }
-main.col-md-9.ml-sm-auto.col-lg-10.px-md-4 {
-    padding-top: 20px;
+@media all and (max-width: 355px){
+	.barra {
+        left: -200px;
+    	top: 105px;
+	}
+	.statusInfoShipping, .statusInfoPickUp {
+    	width: 65%;
+    	max-width: 65%;
+	}
 }
-nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
-    background-color: #ffffff !important;
-    box-shadow: 0px 1px 3px #00000040;
-}
+

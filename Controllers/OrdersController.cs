@@ -133,7 +133,7 @@ namespace ShopifyWeb.Controllers
             detail.Customer = _context.Customer.Where(c => c.id.Equals(detail.Order.customer_id)).FirstOrDefault();
             detail.Customer.default_address = _context.CustomerAddress.Where(d => d.customer_id.Equals(detail.Order.customer_id)).FirstOrDefault();
             detail.Items = items;
-            detail.Combo = getStateValues(detail.Order.status);
+            detail.Combo = getStateValues(detail.Order.status,detail.Order.fechaEstimada.Contains("para recojo") ? true : false);
 
             if (detail == null)
             {
@@ -142,31 +142,34 @@ namespace ShopifyWeb.Controllers
             return View(detail);
         }
 
-        public List<string> getStateValues(string state)
+        public List<string> getStateValues(string state,bool store)
         {
             List<string> lst = new List<string>();
             switch(state)
             {
-                case "Recibimos su pedido":
+                case "Pedido recibido":
                     lst.Add(state);
                     break;
                 case "Pago confirmado":
                     lst.Add(state);
-                    lst.Add("Preparando pedido");
+                    if(store)
+                        lst.Add("En camino a tienda");
+                    else
+                        lst.Add("Entregado al courier");
                     break;
-                case "Preparando pedido":
+                case "En camino a tienda":
                     lst.Add(state);
-                    lst.Add("Pedido enviado");
-                    lst.Add("Recojo en tienda");
+                    lst.Add("Listo para recojo");
                     break;
-                case "Recojo en tienda":
+                case "Listo para recojo":
                     lst.Add(state);
+                    lst.Add("Entregado al cliente");
                     break;
-                case "Pedido enviado":
+                case "Entregado al courier":
                     lst.Add(state);
-                    lst.Add("Pedido entregado");
+                    lst.Add("Entregado al cliente");
                     break;
-                case "Pedido entregado":
+                case "Entregado al cliente":
                     lst.Add(state);
                     break;
                 case "Cancelado":
@@ -197,7 +200,7 @@ namespace ShopifyWeb.Controllers
                     status.Status = byState;
                     status.CreateDate = DateTime.Now;
 
-                    if(byState != "Pago confirmado" || byState != "Recibimos su recibido")//update with the fulfillment api
+                    if(byState != "Pago confirmado" || byState != "Pedido recibido")//update with the fulfillment api
                     {
                         if(string.IsNullOrEmpty(order.fulfillment_id))
                         {
@@ -259,12 +262,14 @@ namespace ShopifyWeb.Controllers
         {
             switch (id)
             {
-                case "Preparando pedido":
+                case "En camino a tienda":
                     return "confirmed";
-                case "Pedido enviado":
+                case "Entregado al courier":
                     return "out_for_delivery";
-                case "Pedido entregado":
+                case "Entregado al cliente":
                     return "delivered";
+                case "Listo para recojo":
+                    return "ready_for_pickup";
             }
             return "";
         }

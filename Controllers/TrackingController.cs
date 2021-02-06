@@ -44,6 +44,7 @@ namespace ShopifyWeb.Controllers
                 detail.Items = _context.Item.Where(o => o.order_id == order.id).ToList();
                 detail.Ship = _context.ShipAddress.Where(c => c.order_id == order.id).FirstOrDefault();
                 detail.Status = generateList(order);
+                detail.Customer = _context.Customer.Where(c => c.id == order.customer_id).FirstOrDefault();
 
                 return View(detail);
             }
@@ -54,13 +55,19 @@ namespace ShopifyWeb.Controllers
         public List<OrderStatus> generateList(Orders order)
         {
             List<OrderStatus> ls = new List<OrderStatus>();
-            string[] defaultStatus = { "Recibimos su pedido", "Pago confirmado", "Preparando pedido", "Pedido enviado", "Pedido entregado" };
-            string[] cancelStatus = {"Recibimos su pedido", "Pago confirmado", "Cancelado"};
+            string[] pickupStatus = { "Pedido recibido", "Pago confirmado", "En camino a tienda", "Listo para recojo", "Entregado a cliente" };
+            string[] defaultStatus = { "Pedido recibido", "Pago confirmado", "Entregado al courier", "Entregado al cliente" };
+            string[] cancelStatus = {"Pedido recibido", "Pago confirmado", "Cancelado"};
 
             if (order.status == "Cancelado")
-                ls = createList(cancelStatus,order,33);
+                ls = createList(cancelStatus, order, 33);
             else
-                ls = createList(defaultStatus,order,20);            
+            {
+                if (order.fechaEstimada.Contains("para recojo"))
+                    ls = createList(pickupStatus, order, 20);
+                else
+                    ls = createList(defaultStatus, order, 20);
+            }
 
             return ls;
         }
@@ -87,7 +94,8 @@ namespace ShopifyWeb.Controllers
             {
                 OrderStatus orderStatus = ls.Find(s => s.Status == stat.Status);
                 orderStatus.CreateDate = stat.CreateDate;
-                orderStatus.Date = stat.CreateDate.ToShortDateString();
+                orderStatus.Date = stat.CreateDate.ToString("dd/MM/yyyy");
+                orderStatus.Time = stat.CreateDate.ToString("HH:mm");
                 orderStatus.Id = stat.Id;
                 if (i == stats.Count)
                     orderStatus.Active = "active";
