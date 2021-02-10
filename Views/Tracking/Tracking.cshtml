@@ -48,17 +48,17 @@
                             @if (!Model.Order.fechaEstimada.Contains("para recojo"))
                             {
                                 <div class="statusInfoShipping row" id="statusInfoShipping">
-                                    <span class="col col1 text-center statusPedido @Model.Status[0].Active" data-percentage="15%">
+                                    <span class="col col1 text-center statusPedido @Model.Status[0].Active" data-percentage="8%">
                                         <div class="lblInfo">Recibimos su pedido</div>
                                         <div class="fechaInfo">@Model.Status[0].Date</div>
                                         <div class="horaInfo">@Model.Status[0].Time</div>
                                     </span>
-                                    <span class="col col2 text-center statusPedido @Model.Status[1].Active" data-percentage="45%">
+                                    <span class="col col2 text-center statusPedido @Model.Status[1].Active" data-percentage="32%">
                                         <div class="lblInfo">Pago confirmado</div>
                                         <div class="fechaInfo">@Model.Status[1].Date</div>
                                         <div class="horaInfo">@Model.Status[1].Time</div>
                                     </span>
-                                    <span class="col col3 text-center statusPedido @Model.Status[2].Active" data-percentage="75%">
+                                    <span class="col col3 text-center statusPedido @Model.Status[2].Active" data-percentage="60%">
                                         <div class="lblInfo">Entregado al courier</div>
                                         <div class="fechaInfo">@Model.Status[2].Date</div>
                                         <div class="horaInfo">@Model.Status[2].Time</div>
@@ -116,7 +116,7 @@
                                             </div>
                                             <div class="col-md-6 text-lg-right">
                                                 SKU: <span>@item.sku</span>
-                                                CANTIDAD: <span>@item.quantity</span>
+                                                Cantidad: <span>@item.quantity</span>
                                             </div>
                                         }
                                     </div>

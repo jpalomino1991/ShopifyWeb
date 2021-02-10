@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShopifyWeb.Data;
 using ShopifyWeb.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,9 +44,18 @@ namespace ShopifyWeb.Controllers
 
                 detail.Order = order;
                 detail.Items = _context.Item.Where(o => o.order_id == order.id).ToList();
+
+                foreach(Item item in detail.Items)
+                {
+                    KellyChild product = _context.KellyChild.FromSqlInterpolated($"GetProductChildInfo @CodigoPadre = {item.sku}").ToList()[0];
+                    item.name = $"{item.title}{(product.Talla != "00" ? " Talla - " + product.Talla : "")}{(product.Taco != "00" ? " Taco - " + product.Taco : "")}";
+                }
+
                 detail.Ship = _context.ShipAddress.Where(c => c.order_id == order.id).FirstOrDefault();
                 detail.Status = generateList(order);
                 detail.Customer = _context.Customer.Where(c => c.id == order.customer_id).FirstOrDefault();
+                detail.Customer.first_name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(detail.Customer.first_name);
+                detail.Customer.last_name = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(detail.Customer.last_name);
 
                 return View(detail);
             }
@@ -57,22 +68,19 @@ namespace ShopifyWeb.Controllers
             List<OrderStatus> ls = new List<OrderStatus>();
             string[] pickupStatus = { "Pedido recibido", "Pago confirmado", "En camino a tienda", "Listo para recojo", "Entregado a cliente" };
             string[] defaultStatus = { "Pedido recibido", "Pago confirmado", "Entregado al courier", "Entregado al cliente" };
-            string[] cancelStatus = {"Pedido recibido", "Pago confirmado", "Cancelado"};
 
-            if (order.status == "Cancelado")
-                ls = createList(cancelStatus, order, 33);
-            else
+            if (order.status != "Cancelado")
             {
                 if (order.fechaEstimada.Contains("para recojo"))
-                    ls = createList(pickupStatus, order, 20);
+                    ls = createList(pickupStatus, order, order.status);
                 else
-                    ls = createList(defaultStatus, order, 20);
+                    ls = createList(defaultStatus, order, order.status);
             }
 
             return ls;
         }
 
-        public List<OrderStatus> createList(string[] lst, Orders order, int porcentage)
+        public List<OrderStatus> createList(string[] lst, Orders order, string statName)
         {
             List<OrderStatus> ls = new List<OrderStatus>();
             int i = 1;
@@ -89,7 +97,6 @@ namespace ShopifyWeb.Controllers
 
             List<OrderStatus> stats = _context.OrderStatus.Where(s => s.OrderId == order.id).ToList();
 
-            i = 1;
             foreach (OrderStatus stat in stats)
             {
                 OrderStatus orderStatus = ls.Find(s => s.Status == stat.Status);
@@ -97,9 +104,8 @@ namespace ShopifyWeb.Controllers
                 orderStatus.Date = stat.CreateDate.ToString("dd/MM/yyyy");
                 orderStatus.Time = stat.CreateDate.ToString("HH:mm");
                 orderStatus.Id = stat.Id;
-                if (i == stats.Count)
+                if (stat.Status == statName)
                     orderStatus.Active = "active";
-                i++;
             }
 
             return ls;

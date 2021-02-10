@@ -190,15 +190,16 @@ namespace ShopifyWeb.Controllers
             {
                 try
                 {
+                    TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
                     Orders order = new Orders();
                     order = _context.Orders.Find(id);
                     order.status = byState;
-                    order.updated_at = DateTime.Now;
+                    order.updated_at = TimeZoneInfo.ConvertTime(DateTime.Now,tst);
 
                     OrderStatus status = new OrderStatus();
                     status.OrderId = id;
                     status.Status = byState;
-                    status.CreateDate = DateTime.Now;
+                    status.CreateDate = TimeZoneInfo.ConvertTime(DateTime.Now, tst);
 
                     if(byState != "Pago confirmado" || byState != "Pedido recibido")//update with the fulfillment api
                     {
@@ -263,7 +264,7 @@ namespace ShopifyWeb.Controllers
             switch (id)
             {
                 case "En camino a tienda":
-                    return "confirmed";
+                    return "picked_up";
                 case "Entregado al courier":
                     return "out_for_delivery";
                 case "Entregado al cliente":

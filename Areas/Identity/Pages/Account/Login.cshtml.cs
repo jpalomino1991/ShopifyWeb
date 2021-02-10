@@ -43,13 +43,15 @@ namespace ShopifyWeb.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
+            [Display(Name = "Usuario")]
             public string UserName { get; set; }
 
             [Required]
             [DataType(DataType.Password)]
+            [Display(Name = "Contraseña")]
             public string Password { get; set; }
 
-            [Display(Name = "Remember me?")]
+            [Display(Name = "Recordar?")]
             public bool RememberMe { get; set; }
         }
 
