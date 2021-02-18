@@ -127,6 +127,20 @@ namespace ShopifyWeb.Controllers
 
             OrderDetail detail = new OrderDetail();
             detail.Order = _context.Orders.Find(id);
+
+            IRestResponse response = CallShopify($"orders/{id}.json", Method.GET, null);
+
+            if (response.StatusCode.ToString().Equals("OK"))
+            {
+                MasterOrder mo = JsonConvert.DeserializeObject<MasterOrder>(response.Content);
+                if (mo.order.shipping_lines.Count > 0)
+                {
+                    detail.Order.shipping_price = mo.order.shipping_lines[0].price;
+                }
+            }
+            else
+                return NotFound();
+
             List<Item> items = _context.Item.Where(i => i.order_id.Equals(id)).ToList();
             detail.Bill = _context.BillAddress.Where(b => b.order_id.Equals(id)).FirstOrDefault();
             detail.Ship = _context.ShipAddress.Where(s => s.order_id.Equals(id)).FirstOrDefault();

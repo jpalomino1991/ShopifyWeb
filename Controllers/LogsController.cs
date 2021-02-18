@@ -1,8 +1,10 @@
 ﻿using cloudscribe.Pagination.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ShopifyWeb.Data;
+using ShopifyWeb.Helpers;
 using ShopifyWeb.Models;
 using System;
 using System.Collections.Generic;
@@ -11,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace ShopifyWeb.Controllers
 {
+    [Authorize(Roles = Roles.Admin)]
     public class LogsController : Controller
     {
         private readonly ApplicationDbContext _context;

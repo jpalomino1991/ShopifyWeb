@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,5 +29,11 @@ namespace ShopifyWeb.Models
 		public string status { get; set; }
 		public string fechaEstimada { get; set; }
 		public string fulfillment_id { get; set; }
+		[NotMapped]
+		public List<ShippingLine> shipping_lines { get; set; }
+		[NotMapped]
+		public decimal shipping_price { get; set; }
+		[NotMapped]
+		public string pickup_place { get; set; }
 	}
 }
