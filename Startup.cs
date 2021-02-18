@@ -37,6 +37,12 @@ namespace ShopifyWeb
                 .AddDefaultUI()
                 .AddDefaultTokenProviders();
 
+            services.ConfigureApplicationCookie(options => {
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+                options.LoginPath = "/Identity/Account/Login";
+                options.SlidingExpiration = true;
+            });
+
             services.AddControllersWithViews();
             services.AddCloudscribePagination();
         }

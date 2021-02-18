@@ -124,7 +124,7 @@
                             <td><input asp-for="@Model.childs[i].Size" class="form-control" readonly /><input type="hidden" asp-for="@Model.childs[i].InventoryItemId" /></td>
                             <td><input asp-for="@Model.childs[i].Price" class="form-control" /><input type="hidden" asp-for="@Model.childs[i].ParentId" /></td>
                             <td><input asp-for="@Model.childs[i].CompareAtPrice" class="form-control" /><input type="hidden" asp-for="@Model.childs[i].CreateDate" /></td>
-                            <td><input asp-for="@Model.childs[i].Stock" class="form-control" /></td>
+                            <td><input asp-for="@Model.childs[i].Stock" class="form-control" /><input type="hidden" asp-for="@Model.childs[i].Peso" /></td>
                         </tr>
                     }
                 </tbody>

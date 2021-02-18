@@ -70,8 +70,8 @@ namespace ShopifyWeb.Controllers
 
             var filter = products.OrderBy(p => p.SKU).Skip(ExcludeRecords).Take(pageSize);
 
-            ViewBag.Brand = _context.Brand.AsNoTracking().ToList();
-            ViewBag.ProductType = _context.ProductType.AsNoTracking().ToList();
+            ViewBag.Brand = _context.Brand.OrderBy(b => b.Name).AsNoTracking().ToList();
+            ViewBag.ProductType = _context.ProductType.OrderBy(p => p.Name).AsNoTracking().ToList();
 
             var result = new PagedResult<Product>
             {
@@ -152,10 +152,12 @@ namespace ShopifyWeb.Controllers
                             else
                                 ps.ProductType = $"{parent.SegmentoNivel4} {parent.SegmentoNivel5}";
                         }
+                        if (parent.SegmentoNivel4 == "Accesorios")
+                            ps.ProductType = parent.SegmentoNivel5;
                         else
                             ps.ProductType = parent.SegmentoNivel4;
                         ps.Description = String.Format(body, col, mar, parent.Taco, mat, matI, matS, parent.HechoEn, cp);
-                        ps.Tags = $"{ps.ProductType},{mat},{col},{cp},{mat.Replace(' ', ',')},{mar},{parent.SegmentoNivel1},{(sex == "Unisex" ? "Hombre,Mujer" : (sex != parent.SegmentoNivel2 ? "Kids," + sex : sex))},{parent.SegmentoNivel4},{parent.CodigoPadre},{ten},{oca},{parent.Taco}";
+                        ps.Tags = $"{(parent.SegmentoNivel4 == "Accesorios" ? $"{parent.SegmentoNivel4},{parent.SegmentoNivel5}" : ps.ProductType)},{mat},{col},{cp},{mar},{parent.SegmentoNivel1},{(sex == "Unisex" ? "Hombre,Mujer" : (sex != parent.SegmentoNivel2 ? "Kids," + sex : sex))},{parent.SegmentoNivel4},{parent.CodigoPadre},{ten},{oca},{parent.Taco}";
                         ps.Handle = $"{cp}-{parent.SegmentoNivel4}-{sex}-{col}-{mar}";
 
                         if (parent.SegmentoNivel4 == "Pantuflas" || parent.SegmentoNivel4 == "Alpargatas")
@@ -173,6 +175,13 @@ namespace ShopifyWeb.Controllers
                                 ps.SEODescription = $"{ten} {oca} {(parent.Campaña == null ? "" : parent.Campaña)} {sex} Stilettos {cp} {mat} {col} {mar}";
                                 ps.SEOTitle = $"Stilettos {cp} {mat} | {col} | {mar}";
                                 imageName = $"{parent.SegmentoNivel4}_{parent.SegmentoNivel5}_{cp}_{mat}_{col}_{mar}";
+                            }
+                            if (parent.SegmentoNivel4 == "Accesorios")
+                            {
+                                ps.Title = $"{parent.SegmentoNivel5} {col} {cp}";
+                                ps.SEODescription = $"{ten} {oca} {(parent.Campaña == null ? "" : parent.Campaña)} {sex} {parent.SegmentoNivel5} {cp} {mat} {col} {mar}";
+                                ps.SEOTitle = $"{parent.SegmentoNivel5} {cp} {mat} | {col} | {mar}";
+                                imageName = $"{parent.SegmentoNivel5}_{cp}_{mat}_{col}_{mar}";
                             }
                             else
                             {
@@ -240,6 +249,7 @@ namespace ShopifyWeb.Controllers
                             variant.CompareAtPrice = promoPrice == "" ? promoPrice : child.PrecioTV.ToString();
                             variant.CreateDate = DateTime.Now;
                             variant.UpdateDate = DateTime.Now;
+                            variant.Peso = child.Peso;
                             stock += child.StockTotal < 0 ? 0 : child.StockTotal;
                             lsVariant.Add(variant);
                         }
@@ -472,6 +482,9 @@ namespace ShopifyWeb.Controllers
                         variant.inventory_quantity = child.Stock;
                         variant.inventory_management = "shopify";
                         variant.compare_at_price = child.CompareAtPrice;
+                        variant.grams = child.Peso;
+                        variant.weight = child.Peso.ToString();
+                        variant.weight_unit = "g";
                         stock += child.Stock;
                         lsVariant.Add(variant);
 

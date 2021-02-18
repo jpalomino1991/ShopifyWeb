@@ -104,8 +104,8 @@ nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
 	    display: inline-block;
 	    vertical-align: top;
 	    position: absolute;
-        left: -160px;
-    	top: 108px;
+        left: -70px;
+    	top: 10px;
 	}
 	.barra .progress {
 	    transform: rotate(90deg) translateX(90px);
@@ -147,8 +147,8 @@ nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
 }
 @media all and (max-width: 355px){
 	.barra {
-        left: -200px;
-    	top: 105px;
+        left: -125px;
+    	top: 10px;
 	}
 	.statusInfoShipping, .statusInfoPickUp {
     	width: 65%;
@@ -156,3 +156,12 @@ nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
 	}
 }
 
+@media all and (max-width:767px) {
+	.navbar-dark .navbar-toggler {
+		background-color: #f8a32d;
+	}
+
+	nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top .container {
+		display: contents;
+	}
+}

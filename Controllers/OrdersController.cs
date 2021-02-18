@@ -190,7 +190,8 @@ namespace ShopifyWeb.Controllers
             {
                 try
                 {
-                    TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+                    string tz = TimeZoneConverter.TZConvert.WindowsToIana("SA Pacific Standard Time");
+                    TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(tz);
                     Orders order = new Orders();
                     order = _context.Orders.Find(id);
                     order.status = byState;

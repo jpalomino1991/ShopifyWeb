@@ -23,9 +23,11 @@ namespace ShopifyWeb.Controllers
         }
         public IActionResult Index(DateTime byDate, int pageNumber = 1, int pageSize = 10)
         {
-            if(byDate == DateTime.MinValue)
+            string tz = TimeZoneConverter.TZConvert.WindowsToIana("SA Pacific Standard Time");
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(tz);
+            if (byDate == DateTime.MinValue)
             {
-                byDate = DateTime.Now;
+                byDate = TimeZoneInfo.ConvertTime(DateTime.Now, tst);
             }
             ViewBag.byDate = byDate.ToString("yyyy-MM-dd");
             var logs = _context.Logs.Where(l => l.DateStart.Date.Equals(byDate.Date));
