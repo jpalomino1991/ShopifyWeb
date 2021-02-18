@@ -99,7 +99,7 @@ namespace ShopifyWeb.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty, "Clave o usuario incorrecto.");
                     return Page();
                 }
             }
