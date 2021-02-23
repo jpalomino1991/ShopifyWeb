@@ -31,9 +31,14 @@ namespace ShopifyWeb.Models
         public string Status { get; set; }
         public int CantidadImagenes { get; set; }
         public DateTime CreateDate { get; set; }
+        public string Marca { get; set; }
+        public string MaterialInterior { get; set; }
+        public string MaterialSuela { get; set; }
+        public string HechoEn { get; set; }
+        public string CodigoProducto { get; set; }
         public string ToLine()
         {
-            return $"{SKU};{Handle};{Title};{Tags};{Id};{ProductType};{Vendor};{SEOTitle};{SEODescription};{URL};{Talla};{Stock};{PrecioTV};{PrecioPromocion};{Color};{Material};{Taco};{Genero};{Ocasion};{Tendencia};{Departamento};{Status};{CantidadImagenes};{CreateDate};";
+            return $"{SKU};{Handle};{Title};{Tags};{Id};{ProductType};{Vendor};{SEOTitle};{SEODescription};{URL};{Talla};{Stock};{PrecioTV};{PrecioPromocion};{Color};{Material};{Taco};{Genero};{Ocasion};{Tendencia};{Departamento};{Status};{CantidadImagenes};{CreateDate};{Marca};{MaterialInterior};{MaterialSuela};{HechoEn};{CodigoProducto};";
         }
     }
 }

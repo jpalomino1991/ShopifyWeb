@@ -423,7 +423,7 @@ namespace ShopifyWeb.Controllers
             List<ProductDownload> products = _context.ProductDownload.FromSqlInterpolated($"GetProductForDownload @byName = {(string.IsNullOrEmpty(byName) ? 0 : 1)},@Name = {(string.IsNullOrEmpty(byName) ? "" : byName)},@bySKU = {(string.IsNullOrEmpty(BySKU) ? 0 : 1)},@SKU = {(string.IsNullOrEmpty(BySKU) ? "" : BySKU)},@byVendor = {(string.IsNullOrEmpty(byVendor) ? 0 : 1)},@Vendor = {(string.IsNullOrEmpty(byVendor) ? "" : byVendor)},@byType = {(string.IsNullOrEmpty(byType) ? 0 : 1)},@Type = {(string.IsNullOrEmpty(byType) ? "" : byType)},@byStock = {(byStock == "1" ? 0 : 1)},@Stock = {(byStock == "2" ? "active" : "draft")}").ToList();
 
             List<object> customers = new List<object>();
-            customers.Insert(0, new string[24] { "SKU", "Handle","Titulo", "Tags", "Id de Shopify", "Tipo de Producto", "Proveedor", "Titulo SEO", "Metadescripcion", "URL", "Talla", "Stock", "Precio", "Precio Promocion", "Color Padre", "Material", "Taco", "Genero", "Ocasion", "Tendencia", "Departamento", "Estado", "Cantidad de Imagenes", "Fecha de Creacion" });
+            customers.Insert(0, new string[29] { "SKU", "Handle","Titulo", "Tags", "Id de Shopify", "Tipo de Producto", "Proveedor", "Titulo SEO", "Metadescripcion", "URL", "Talla", "Stock", "Precio", "Precio Promocion", "Color Padre", "Material", "Taco", "Genero", "Ocasion", "Tendencia", "Departamento", "Estado", "Cantidad de Imagenes", "Fecha de Creacion", "Marca", "Material Interior", "Material Suela", "Hecho En", "Modelo" });
 
             StringBuilder sb = new StringBuilder();
 
