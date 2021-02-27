@@ -165,3 +165,23 @@ nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
 		display: contents;
 	}
 }
+
+.cardFilter {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+#images {
+	display: inline-block;
+	float: left;
+	width: 200px;
+	height: 200px;
+	position: relative;
+}
+
+.del_photo {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 5px 5px 0 0;
+}

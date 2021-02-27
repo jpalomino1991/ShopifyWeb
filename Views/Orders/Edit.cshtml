@@ -1,30 +1,35 @@
 ﻿@model ShopifyWeb.Models.OrderDetail
+@using ShopifyWeb.Helpers
 
-<form asp-action="Edit" id="formulario" method="post">
-    <div class="row">
-        <div class="col">
-            <h4>Order @Model.Order.name</h4>
-        </div>
-        <div class="col">
-            <label for="Nombre" class="control-label">Estado de la Orden</label>
-        </div>
-        <div class="col">
-            <input type="hidden" name="id" value="@Model.Order.id" />
-            <select id="state" class="custom-select" name="byState">
-                @foreach (string item in Model.Combo)
+<div class="card cardFilter">
+    <div class="card-body">
+        <form asp-action="Edit" id="formulario" method="post">
+            <div class="row">
+                <div class="col">
+                    <h4>Order @Model.Order.name</h4>
+                </div>
+                <div class="col">
+                    <label for="Nombre" class="control-label">Estado de la Orden</label>
+                </div>
+                <div class="col">
+                    <input type="hidden" name="id" value="@Model.Order.id" />
+                    <select id="state" class="custom-select" name="byState">
+                        @foreach (string item in Model.Combo)
+                        {
+                            <option value="@item">@item</option>
+                        }
+                    </select>
+                </div>
+                @if (Model.Combo.Count > 1 && User.IsInRole(Roles.Admin))
                 {
-                    <option value="@item">@item</option>
+                    <div class="col">
+                        <input type="submit" value="Guardar" id="save" class="btn btn-info">
+                    </div>
                 }
-            </select>
-        </div>
-        @if (Model.Combo.Count > 1)
-        {
-            <div class="col">
-                <input type="submit" value="Guardar" id="save" class="btn btn-info">
             </div>
-        }
+        </form>
     </div>
-</form>
+</div>
 
 <hr />
 
@@ -121,7 +126,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Regresar</a>
+    <a class="btn btn-primary cardFilter" asp-action="Index">Regresar</a>
 </div>
 
 <partial name="_LoadingPartial" />
