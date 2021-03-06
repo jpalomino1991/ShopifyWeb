@@ -26,8 +26,8 @@ namespace ShopifyWeb.Controllers
         }
         public IActionResult Index(DateTime byDate, int pageNumber = 1, int pageSize = 10)
         {
-            string tz = TimeZoneConverter.TZConvert.WindowsToIana("SA Pacific Standard Time");
-            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById(tz);
+            //string tz = TimeZoneConverter.TZConvert.WindowsToIana("SA Pacific Standard Time");
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
             if (byDate == DateTime.MinValue)
             {
                 byDate = TimeZoneInfo.ConvertTime(DateTime.Now, tst);

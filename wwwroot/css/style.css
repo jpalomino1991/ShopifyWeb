@@ -185,3 +185,6 @@ nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
 	right: 0;
 	margin: 5px 5px 0 0;
 }
+a[href="http://somee.com"] {
+	display: none;
+}
