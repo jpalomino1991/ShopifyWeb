@@ -20,10 +20,30 @@
                 </div>
                 <div class="col">
                     <div class="form-group">
-                        <label for="Nombre" class="control-label">Nombre</label>
+                        <label for="Nombre" class="control-label">Fecha</label>
+                        <input id="date" name="ByDate" value="@ViewBag.byDate" width="234" />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="Nombre" class="control-label">Nombre y Apellidos</label>
                         <input type="text" name="ByName" value="@ViewBag.byName" class="form-control" />
                     </div>
                 </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="Nombre" class="control-label">DNI/RUC</label>
+                        <input type="text" name="ByDni" value="@ViewBag.byDni" class="form-control" />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="Nombre" class="control-label">Teléfono/Celular</label>
+                        <input type="text" name="ByPhone" value="@ViewBag.byPhone" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col">
                     <div class="form-group">
                         <label for="Nombre" class="control-label">Correo</label>
@@ -32,8 +52,28 @@
                 </div>
                 <div class="col">
                     <div class="form-group">
-                        <label for="Nombre" class="control-label">Estado de Pago</label>
+                        <label for="Nombre" class="control-label">Tipo de Pago</label>
                         <select id="payment" class="custom-select" name="byPayment">
+                            <option value="0" selected>Seleccione un valor</option>
+                            <option value="1">Deposito Bancario</option>
+                            <option value="2">Mercado Pago</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="Nombre" class="control-label">Estado del Pago</label>
+                        <select id="paymentState" class="custom-select" name="byPaymentState">
+                            <option value="0" selected>Seleccione un valor</option>
+                            <option value="1">Pendiente</option>
+                            <option value="2">Pagado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="Nombre" class="control-label">Estado de la Orden</label>
+                        <select id="orderState" class="custom-select" name="byOrderState">
                             <option value="0" selected>Seleccione un valor</option>
                             <option value="1">Deposito Bancario</option>
                             <option value="2">Mercado Pago</option>
@@ -54,19 +94,22 @@
                 # Orden
             </th>
             <th>
-                Tipo de Pago
-            </th>
-            <th>
-                Correo
-            </th>
-            <th>
                 Fecha
+            </th>
+            <th>
+                Nombre y Apellidos
             </th>
             <th>
                 Total
             </th>
             <th>
-                Estado
+                Tipo de Pago
+            </th>
+            <th>
+                Estado de Pago
+            </th>
+            <th>
+                Estado de la Orden
             </th>
             <th></th>
         </tr>
@@ -74,29 +117,48 @@
     <tbody>
         @foreach (var item in Model.Data)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.order_number)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.gateway)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.email)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.created_at)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.total_price)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.financial_status)
-                </td>
-                <td>
-                    <a class="btn btn-info" role="button" asp-action="Edit" asp-route-id="@item.id">Ver</a>
-                </td>
-            </tr>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.order_number)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.created_at)
+            </td>
+            <td></td>
+            <td>
+                @Html.DisplayFor(modelItem => item.total_price)
+            </td>
+            <td>
+                @switch (item.gateway)
+                {
+                    case "Bank Deposit":
+                        <p>Deposito Bancario</p>
+                        break;
+                    case "Cash on Delivery (COD)":
+                        <p>Contraentrega</p>
+                        break;
+                    case "mercado_pago":
+                        <p>Mercado Pago</p>
+                        break;
+                }
+            </td>
+            <td>
+                @if (item.financial_status == "pending")
+                {
+                    <p>Pendiente</p>
+                }
+                else
+                {
+                    <p>Pagado</p>
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.status)
+            </td>
+            <td>
+                <a class="btn btn-info" role="button" asp-action="Edit" asp-route-id="@item.id">Ver</a>
+            </td>
+        </tr>
         }
     </tbody>
 </table>
@@ -106,6 +168,9 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            $("#date").datepicker({
+                dateFormat: "yy-mm-dd"
+            });
             $("#payment").val('@ViewBag.byPayment');
         });
     </script>

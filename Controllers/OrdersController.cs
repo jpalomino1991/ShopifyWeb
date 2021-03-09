@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using cloudscribe.Pagination.Models;
@@ -30,12 +31,19 @@ namespace ShopifyWeb.Controllers
         }
 
         // GET: Orders
-        public IActionResult Index(string byOrderNumber,string byName,string byEmail,int byPayment, int pageNumber = 1, int pageSize = 10)
+        public IActionResult Index(string byOrderNumber, DateTime byDate, string byName, string byDni, string ByPhone, string byEmail,int byPayment, int byPaymentState, int byOrderState, int pageNumber = 1, int pageSize = 10)
         {
             ViewBag.byName = byName;
             ViewBag.byOrderNumber = byOrderNumber;
             ViewBag.byEmail = byEmail;
             ViewBag.byPayment = byPayment;
+
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
+            if (byDate == DateTime.MinValue)
+            {
+                byDate = TimeZoneInfo.ConvertTime(DateTime.Now, tst);
+            }
+            ViewBag.byDate = byDate.ToString("yyyy-MM-dd");
             int ExcludeRecords = (pageSize * pageNumber) - pageSize;
 
             var orders = _context.Orders.Where(o => o.total_price > 0);
@@ -148,6 +156,34 @@ namespace ShopifyWeb.Controllers
             detail.Customer.default_address = _context.CustomerAddress.Where(d => d.customer_id.Equals(detail.Order.customer_id)).FirstOrDefault();
             detail.Items = items;
             detail.Combo = getStateValues(detail.Order.status,detail.Order.fechaEstimada.Contains("para recojo") ? true : false);
+
+            detail.Customer.default_address.zip = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(detail.Customer.default_address.zip.ToLower());
+            detail.Ship.zip = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(detail.Ship.zip.ToLower());
+            detail.Bill.zip = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(detail.Bill.zip.ToLower());
+
+            if (detail.Order.financial_status == "pending")
+                detail.Order.financial_status = "Pendiente";
+            else
+                detail.Order.financial_status = "Pagado";
+
+            switch(detail.Order.gateway)
+            {
+                case "Bank Deposit":
+                    detail.Order.gateway = "Depósito Bancario";
+                    break;
+                case "Cash on Delivery (COD)":
+                    detail.Order.gateway = "Contraentrega";
+                    break;
+                case "mercado_pago":
+                    detail.Order.gateway = "Mercado Pago";
+                    break;
+            }
+
+            foreach (Item item in detail.Items)
+            {
+                KellyChild product = _context.KellyChild.FromSqlInterpolated($"GetProductChildInfo @CodigoPadre = {item.sku}").ToList()[0];
+                item.name = $"{item.title}{(product.Talla != "00" ? " Talla - " + product.Talla : "")}{(product.Taco != "00" ? " Taco - " + product.Taco : "")}";
+            }
 
             if (detail == null)
             {

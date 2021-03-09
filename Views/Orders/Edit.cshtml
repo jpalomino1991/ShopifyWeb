@@ -50,7 +50,7 @@
 
             <tr>
                 <td>@i</td>
-                <td>@Model.Items[i - 1].title</td>
+                <td>@Model.Items[i - 1].name</td>
                 <td>@Model.Items[i - 1].quantity</td>
                 <td>@Model.Items[i - 1].sku</td>
                 <td>@Model.Items[i - 1].price</td>
@@ -65,7 +65,7 @@
         <div class="row">
             <div class="col">
                 <p>Estado de Pago: @Model.Order.financial_status</p>
-                <p>Método de Pago: @Model.Order.gateway</p>
+                <p>Tipo de Pago: @Model.Order.gateway</p>
             </div>
             <div class="col"></div>
             <div class="col"></div>
@@ -89,9 +89,11 @@
                 <p class="card-text">Nombre: @Model.Customer.first_name @Model.Customer.last_name</p>
                 <p class="card-text">Correo: @Model.Customer.email</p>
                 <p class="card-text">DNI/RUC: @Model.Customer.default_address.company</p>
-                <p class="card-text">Dirección: @Model.Customer.default_address.address1 @Model.Customer.default_address.address2</p>
+                <p class="card-text">Dirección: @Model.Customer.default_address.address1</p>
+                <p class="card-text">Referencia: @Model.Customer.default_address.address2</p>
                 <p class="card-text">Departamento: @Model.Customer.default_address.province</p>
                 <p class="card-text">Ciudad: @Model.Customer.default_address.city</p>
+                <p class="card-text">Distrito: @Model.Customer.default_address.zip</p>
             </div>
         </div>
     </div>
@@ -102,10 +104,12 @@
             </div>
             <div class="card-body">
                 <p class="card-text">Nombre: @Model.Ship.name</p>
-                <p class="card-text">Dirección: @Model.Ship.address1 @Model.Ship.address2</p>
+                <p class="card-text">Dirección: @Model.Ship.address1</p>
+                <p class="card-text">Referencia: @Model.Ship.address2</p>
                 <p class="card-text">Teléfono: @Model.Ship.phone</p>
                 <p class="card-text">Departamento: @Model.Ship.province</p>
                 <p class="card-text">Ciudad: @Model.Ship.city</p>
+                <p class="card-text">Distrito: @Model.Ship.zip</p>
             </div>
         </div>
     </div>
@@ -116,10 +120,12 @@
             </div>
             <div class="card-body">
                 <p class="card-text">Nombre: @Model.Bill.name</p>
-                <p class="card-text">Dirección: @Model.Bill.address1 @Model.Bill.address2</p>
+                <p class="card-text">Dirección: @Model.Bill.address1</p>
+                <p class="card-text">Referencia: @Model.Bill.address2</p>
                 <p class="card-text">Teléfono: @Model.Bill.phone</p>
                 <p class="card-text">Departamento: @Model.Bill.province</p>
                 <p class="card-text">Ciudad: @Model.Bill.city</p>
+                <p class="card-text">Distrito: @Model.Bill.zip</p>
             </div>
         </div>
     </div>
