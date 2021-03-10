@@ -31,12 +31,16 @@ namespace ShopifyWeb.Controllers
         }
 
         // GET: Orders
-        public IActionResult Index(string byOrderNumber, DateTime byDate, string byName, string byDni, string ByPhone, string byEmail,int byPayment, int byPaymentState, int byOrderState, int pageNumber = 1, int pageSize = 10)
+        public IActionResult Index(string byOrderNumber, DateTime byDate, string byName, string byDni, string byPhone, string byEmail,int byPayment, int byPaymentState, int byOrderState, int pageNumber = 1, int pageSize = 10)
         {
             ViewBag.byName = byName;
             ViewBag.byOrderNumber = byOrderNumber;
             ViewBag.byEmail = byEmail;
+            ViewBag.byDni = byDni;
+            ViewBag.byPhone = byPhone;
             ViewBag.byPayment = byPayment;
+            ViewBag.byPaymentState = byPaymentState;
+            ViewBag.byOrderState = byOrderState;
 
             TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
             if (byDate == DateTime.MinValue)
@@ -46,35 +50,103 @@ namespace ShopifyWeb.Controllers
             ViewBag.byDate = byDate.ToString("yyyy-MM-dd");
             int ExcludeRecords = (pageSize * pageNumber) - pageSize;
 
-            var orders = _context.Orders.Where(o => o.total_price > 0);
+            var orders = (from o in _context.Orders
+                      join c in _context.Customer on o.customer_id equals c.id
+                      join ca in _context.CustomerAddress on c.id equals ca.customer_id
+                      join b in _context.BillAddress on o.id equals b.order_id
+                      select new OrderList
+                      {
+                          id = o.id,
+                          numero = o.order_number,
+                          fecha = o.created_at,
+                          nombre = c.first_name + " " + c.last_name,
+                          total = o.total_price,
+                          tipo = o.gateway,
+                          estado = o.financial_status,
+                          estadoOrden = o.status,
+                          dni = ca.company,
+                          correo = c.email,
+                          telefono = b.phone
+                      });
 
-            if(!string.IsNullOrEmpty(byOrderNumber))
+            if (!string.IsNullOrEmpty(byOrderNumber))
             {
-                orders = orders.Where(o => o.order_number.Contains(byOrderNumber));
+                orders = orders.Where(o => o.numero.Contains(byOrderNumber));
             }
             if (!string.IsNullOrEmpty(byEmail))
             {
-                orders = orders.Where(o => o.email.Contains(byEmail));
+                orders = orders.Where(o => o.correo.Contains(byEmail));
             }
             if (byPayment > 0)
             {
-                if(byPayment == 1)
-                    orders = orders.Where(o => o.gateway.Equals("Bank Deposit"));
-                else
-                    orders = orders.Where(o => o.gateway.Equals("mercado_pago"));
+                switch(byPayment)
+                {
+                    case 1:
+                        orders = orders.Where(o => o.tipo.Equals("Bank Deposit"));
+                        break;
+                    case 2:
+                        orders = orders.Where(o => o.tipo.Equals("mercado_pago"));
+                        break;
+                    case 3:
+                        orders = orders.Where(o => o.tipo.Equals("Cash on Delivery (COD)"));                        
+                        break;
+                }
             }
             if (!string.IsNullOrEmpty(byName))
             {
-                orders = _context.Orders.Join(_context.Customer,
-                    o => o.customer_id,
-                    c => c.id,
-                    (o,c) => new { o,c })
-                    .Where(x => x.c.first_name.Contains(byName) || x.c.last_name.Contains(byName))
-                    .Select(x => x.o);
+                orders = orders.Where(o => o.nombre.Contains(byName));
             }
-            var filter = orders.OrderByDescending(p => p.created_at).Skip(ExcludeRecords).Take(pageSize);
+            if (byDate.Date != DateTime.Now.Date)
+            {
+                orders = orders.Where(o => o.fecha.Date.Equals(byDate.Date));
+            }
+            if (!string.IsNullOrEmpty(byDni))
+            {
+                orders = orders.Where(o => o.dni.Contains(byDni));
+            }
+            if (!string.IsNullOrEmpty(byPhone))
+            {
+                orders = orders.Where(o => o.telefono.Replace(" ","").Contains(byPhone));
+            }
+            if (byPaymentState > 0)
+            {
+                switch (byPaymentState)
+                {
+                    case 1:
+                        orders = orders.Where(o => o.estado.Equals("pending"));
+                        break;
+                    case 2:
+                        orders = orders.Where(o => o.estado.Equals("paid"));
+                        break;
+                }
+            }
+            if (byOrderState > 0)
+            {
+                switch (byOrderState)
+                {
+                    case 1:
+                        orders = orders.Where(o => o.estadoOrden.Equals("Pedido recibido"));
+                        break;
+                    case 2:
+                        orders = orders.Where(o => o.estadoOrden.Equals("Pago confirmado"));
+                        break;
+                    case 3:
+                        orders = orders.Where(o => o.estadoOrden.Equals("Entregado al courier"));
+                        break;
+                    case 4:
+                        orders = orders.Where(o => o.estadoOrden.Equals("Listo para recojo"));
+                        break;
+                    case 5:
+                        orders = orders.Where(o => o.estadoOrden.Equals("Entregado al cliente"));
+                        break;
+                    case 6:
+                        orders = orders.Where(o => o.estadoOrden.Equals("Cancelado"));
+                        break;
+                }
+            }
+            var filter = orders.OrderByDescending(p => p.fecha).Skip(ExcludeRecords).Take(pageSize);
 
-            var result = new PagedResult<Orders>
+            var result = new PagedResult<OrderList>
             {
                 Data = filter.AsNoTracking().ToList(),
                 TotalItems = orders.Count(),
@@ -183,6 +255,14 @@ namespace ShopifyWeb.Controllers
             {
                 KellyChild product = _context.KellyChild.FromSqlInterpolated($"GetProductChildInfo @CodigoPadre = {item.sku}").ToList()[0];
                 item.name = $"{item.title}{(product.Talla != "00" ? " Talla - " + product.Talla : "")}{(product.Taco != "00" ? " Taco - " + product.Taco : "")}";
+                Product p = _context.Product.Find(item.product_id);
+                if (p != null)
+                {
+                    item.handle = p.Handle;
+                    ProductImage pi = _context.ProductImage.Where(i => i.product_id.Equals(p.Id)).FirstOrDefault();
+                    if (pi != null)
+                        item.imgURL = pi.src;
+                }
             }
 
             if (detail == null)

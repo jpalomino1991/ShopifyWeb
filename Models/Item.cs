@@ -19,6 +19,10 @@ namespace ShopifyWeb.Models
         public string pre_tax_price { get; set; }
         public string order_id { get; set; }
         public decimal tax_price { get; set; }
-        public decimal tax_rate { get; set; }        
+        public decimal tax_rate { get; set; }
+        [NotMapped]
+        public string handle { get; set; }
+        [NotMapped]
+        public string imgURL { get; set; }
     }
 }

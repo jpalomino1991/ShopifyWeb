@@ -42,6 +42,7 @@
             <th>SKU</th>
             <th>Precio</th>
             <th>IGV</th>
+            <th>Ver</th>
         </tr>
     </thead>
     <tbody>
@@ -50,11 +51,12 @@
 
             <tr>
                 <td>@i</td>
-                <td>@Model.Items[i - 1].name</td>
+                <td><img src="@Model.Items[i - 1].imgURL" width="50" height="50" />@Model.Items[i - 1].name</td>
                 <td>@Model.Items[i - 1].quantity</td>
                 <td>@Model.Items[i - 1].sku</td>
                 <td>@Model.Items[i - 1].price</td>
                 <td>@Model.Items[i - 1].tax_price</td>
+                <td><a class="btn btn-info" href="@Environment.GetEnvironmentVariable("WEB_URL")@Model.Items[i - 1].handle?variant=@Model.Items[i - 1].variant_id" target="_blank">Ver Producto</a></td>
             </tr>
         }
     </tbody>

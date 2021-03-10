@@ -1,7 +1,7 @@
-﻿@model cloudscribe.Pagination.Models.PagedResult<Orders>
+﻿@model cloudscribe.Pagination.Models.PagedResult<OrderList>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "app.kellys.com.pe";
     ViewData["Controller"] = "Orders";
     ViewData["Action"] = "Index";
 }
@@ -57,6 +57,7 @@
                             <option value="0" selected>Seleccione un valor</option>
                             <option value="1">Deposito Bancario</option>
                             <option value="2">Mercado Pago</option>
+                            <option value="3">Contraentrega</option>
                         </select>
                     </div>
                 </div>
@@ -75,8 +76,12 @@
                         <label for="Nombre" class="control-label">Estado de la Orden</label>
                         <select id="orderState" class="custom-select" name="byOrderState">
                             <option value="0" selected>Seleccione un valor</option>
-                            <option value="1">Deposito Bancario</option>
-                            <option value="2">Mercado Pago</option>
+                            <option value="1">Pedido recibido</option>
+                            <option value="2">Pago confirmado</option>
+                            <option value="3">Entregado al courier</option>
+                            <option value="4">Listo para recojo</option>
+                            <option value="5">Entregado al cliente</option>
+                            <option value="6">Cancelado</option>
                         </select>
                     </div>
                 </div>
@@ -119,17 +124,19 @@
         {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.order_number)
+                @Html.DisplayFor(modelItem => item.numero)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.created_at)
-            </td>
-            <td></td>
-            <td>
-                @Html.DisplayFor(modelItem => item.total_price)
+                @Html.DisplayFor(modelItem => item.fecha)
             </td>
             <td>
-                @switch (item.gateway)
+                @Html.DisplayFor(modelItem => item.nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.total)
+            </td>
+            <td>
+                @switch (item.tipo)
                 {
                     case "Bank Deposit":
                         <p>Deposito Bancario</p>
@@ -143,7 +150,7 @@
                 }
             </td>
             <td>
-                @if (item.financial_status == "pending")
+                @if (item.estado == "pending")
                 {
                     <p>Pendiente</p>
                 }
@@ -153,7 +160,7 @@
                 }
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.status)
+                @Html.DisplayFor(modelItem => item.estadoOrden)
             </td>
             <td>
                 <a class="btn btn-info" role="button" asp-action="Edit" asp-route-id="@item.id">Ver</a>
@@ -172,6 +179,8 @@
                 dateFormat: "yy-mm-dd"
             });
             $("#payment").val('@ViewBag.byPayment');
+            $("#paymentState").val('@ViewBag.byPaymentState');
+            $("#orderState").val('@ViewBag.byOrderState');
         });
     </script>
 }
