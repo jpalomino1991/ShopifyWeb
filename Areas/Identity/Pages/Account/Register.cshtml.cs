@@ -69,6 +69,7 @@ namespace ShopifyWeb.Areas.Identity.Pages.Account
             [Compare("Password", ErrorMessage = "La claves no coinciden")]
             public string ConfirmPassword { get; set; }
 
+            [Display(Name = "Es Admin")]
             public bool IsAdmin { get; set; }
         }
 
