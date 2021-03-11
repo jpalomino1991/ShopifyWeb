@@ -1,7 +1,11 @@
 ﻿@model ShopifyWeb.Models.EditProduct
 @using ShopifyWeb.Helpers
 
-<h4>Product</h4>
+@{
+    ViewData["Title"] = "App Kelly's";
+}
+
+<h4>Producto</h4>
 <hr />
 <div class="row">
     <div class="col-md-8">
@@ -77,23 +81,23 @@
                 @for (int i = 0; i < Model.imgtoShow.Count(); i++)
                 {
 
-                <div id="images" class="imageshow">
-                    <input type="hidden" asp-for="@Model.imgtoShow[i]" />
-                    @if (Model.imgtoShow[i].Contains("cdn.shopify"))
-                    {
-                        <img src="@Model.imgtoShow[i]" class="img-thumbnail" width="200">
-                    }
-                    else
-                    {
-                        <img src="data:image/jpeg;base64,@Model.imgtoShow[i]" class="img-thumbnail" width="200">
-                    }
-                    @if (User.IsInRole(Roles.Admin))
-                    {
-                        <button type="button" class="close del_photo eliminar" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    }
-                </div>
+                    <div id="images" class="imageshow">
+                        <input type="hidden" asp-for="@Model.imgtoShow[i]" />
+                        @if (Model.imgtoShow[i].Contains("cdn.shopify"))
+                        {
+                            <img src="@Model.imgtoShow[i]" class="img-thumbnail" width="200">
+                        }
+                        else
+                        {
+                            <img src="data:image/jpeg;base64,@Model.imgtoShow[i]" class="img-thumbnail" width="200">
+                        }
+                        @if (User.IsInRole(Roles.Admin))
+                        {
+                            <button type="button" class="close del_photo eliminar" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        }
+                    </div>
                 }
             </div>
 

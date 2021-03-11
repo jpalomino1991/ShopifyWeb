@@ -1,6 +1,10 @@
 ﻿@model ShopifyWeb.Models.OrderDetail
 @using ShopifyWeb.Helpers
 
+@{
+    ViewData["Title"] = "App Kelly's";
+}
+
 <div class="card cardFilter">
     <div class="card-body">
         <form asp-action="Edit" id="formulario" method="post">
@@ -66,16 +70,16 @@
     <div class="col-md-12">
         <div class="row">
             <div class="col">
-                <p>Estado de Pago: @Model.Order.financial_status</p>
-                <p>Tipo de Pago: @Model.Order.gateway</p>
+                <p><strong>Estado de Pago:</strong> @Model.Order.financial_status</p>
+                <p><strong>Tipo de Pago:</strong> @Model.Order.gateway</p>
             </div>
             <div class="col"></div>
             <div class="col"></div>
             <div class="col">
-                <p>Sub Total: @Model.Order.subtotal_price</p>
-                <p>IGV: @Model.Order.total_tax</p>
-                <p>Costo de Envío: @Model.Order.shipping_price</p>
-                <p>Total: @Model.Order.total_price</p>
+                <p><strong>Sub Total:</strong> @Model.Order.subtotal_price</p>
+                <p><strong>IGV:</strong> @Model.Order.total_tax</p>
+                <p><strong>Costo de Envío:</strong> @Model.Order.shipping_price</p>
+                <p><strong>Total:</strong> @Model.Order.total_price</p>
             </div>
         </div>
     </div>
@@ -85,49 +89,49 @@
     <div class="col">
         <div class="card" style="width: 22rem;">
             <div class="card-header">
-                Cliente
+                <strong>Cliente</strong>
             </div>
             <div class="card-body">
-                <p class="card-text">Nombre: @Model.Customer.first_name @Model.Customer.last_name</p>
-                <p class="card-text">Correo: @Model.Customer.email</p>
-                <p class="card-text">DNI/RUC: @Model.Customer.default_address.company</p>
-                <p class="card-text">Dirección: @Model.Customer.default_address.address1</p>
-                <p class="card-text">Referencia: @Model.Customer.default_address.address2</p>
-                <p class="card-text">Departamento: @Model.Customer.default_address.province</p>
-                <p class="card-text">Ciudad: @Model.Customer.default_address.city</p>
-                <p class="card-text">Distrito: @Model.Customer.default_address.zip</p>
+                <p class="card-text"><strong>Nombre:</strong> @Model.Customer.first_name @Model.Customer.last_name</p>
+                <p class="card-text"><strong>Correo:</strong> @Model.Customer.email</p>
+                <p class="card-text"><strong>DNI/RUC:</strong> @Model.Customer.default_address.company</p>
+                <p class="card-text"><strong>Dirección:</strong> @Model.Customer.default_address.address1</p>
+                <p class="card-text"><strong>Referencia:</strong> @Model.Customer.default_address.address2</p>
+                <p class="card-text"><strong>Departamento:</strong> @Model.Customer.default_address.province</p>
+                <p class="card-text"><strong>Ciudad:</strong> @Model.Customer.default_address.city</p>
+                <p class="card-text"><strong>Distrito:</strong> @Model.Customer.default_address.zip</p>
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card" style="width: 22rem;">
             <div class="card-header">
-                Dirección de Envio
+                <strong>Dirección de Envio</strong>
             </div>
             <div class="card-body">
-                <p class="card-text">Nombre: @Model.Ship.name</p>
-                <p class="card-text">Dirección: @Model.Ship.address1</p>
-                <p class="card-text">Referencia: @Model.Ship.address2</p>
-                <p class="card-text">Teléfono: @Model.Ship.phone</p>
-                <p class="card-text">Departamento: @Model.Ship.province</p>
-                <p class="card-text">Ciudad: @Model.Ship.city</p>
-                <p class="card-text">Distrito: @Model.Ship.zip</p>
+                <p class="card-text"><strong>Nombre:</strong> @Model.Ship.name</p>
+                <p class="card-text"><strong>Dirección:</strong> @Model.Ship.address1</p>
+                <p class="card-text"><strong>Referencia:</strong> @Model.Ship.address2</p>
+                <p class="card-text"><strong>Teléfono:</strong> @Model.Ship.phone</p>
+                <p class="card-text"><strong>Departamento:</strong> @Model.Ship.province</p>
+                <p class="card-text"><strong>Ciudad:</strong> @Model.Ship.city</p>
+                <p class="card-text"><strong>Distrito:</strong> @Model.Ship.zip</p>
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card" style="width: 22rem;">
             <div class="card-header">
-                Dirección de Facturación
+                <strong>Dirección de Facturación</strong>
             </div>
             <div class="card-body">
-                <p class="card-text">Nombre: @Model.Bill.name</p>
-                <p class="card-text">Dirección: @Model.Bill.address1</p>
-                <p class="card-text">Referencia: @Model.Bill.address2</p>
-                <p class="card-text">Teléfono: @Model.Bill.phone</p>
-                <p class="card-text">Departamento: @Model.Bill.province</p>
-                <p class="card-text">Ciudad: @Model.Bill.city</p>
-                <p class="card-text">Distrito: @Model.Bill.zip</p>
+                <p class="card-text"><strong>Nombre:</strong> @Model.Bill.name</p>
+                <p class="card-text"><strong>Dirección:</strong> @Model.Bill.address1</p>
+                <p class="card-text"><strong>Referencia:</strong> @Model.Bill.address2</p>
+                <p class="card-text"><strong>Teléfono:</strong> @Model.Bill.phone</p>
+                <p class="card-text"><strong>Departamento:</strong> @Model.Bill.province</p>
+                <p class="card-text"><strong>Ciudad:</strong> @Model.Bill.city</p>
+                <p class="card-text"><strong>Distrito:</strong> @Model.Bill.zip</p>
             </div>
         </div>
     </div>
