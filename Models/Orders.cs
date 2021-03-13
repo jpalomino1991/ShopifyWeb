@@ -29,6 +29,7 @@ namespace ShopifyWeb.Models
 		public string status { get; set; }
 		public string fechaEstimada { get; set; }
 		public string fulfillment_id { get; set; }
+		public string tipoEnvio { get; set; }
 		[NotMapped]
 		public List<ShippingLine> shipping_lines { get; set; }
 		[NotMapped]

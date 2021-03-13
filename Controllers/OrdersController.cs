@@ -254,7 +254,7 @@ namespace ShopifyWeb.Controllers
             foreach (Item item in detail.Items)
             {
                 KellyChild product = _context.KellyChild.FromSqlInterpolated($"GetProductChildInfo @CodigoPadre = {item.sku}").ToList()[0];
-                item.name = $"{item.title}{(product.Talla != "00" ? " Talla - " + product.Talla : "")}{(product.Taco != "00" ? " Taco - " + product.Taco : "")}";
+                item.name = $"{item.title}{(product.Talla != "00" ? " - Talla " + product.Talla : "")}{(product.Taco != "00" ? " - Taco " + product.Taco : "")}";
                 Product p = _context.Product.Find(item.product_id);
                 if (p != null)
                 {

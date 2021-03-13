@@ -77,7 +77,8 @@
                 </div>
             </div>
             <input type="submit" value="Buscar" class="btn btn-info cardFilter">
-            <a class="btn btn-danger cardFilter" asp-action="Index">Quitar Filtro</a>
+            <a class="btn btn-warning cardFilter" asp-action="Index">Quitar Filtro</a>
+        </form>
             @if (User.IsInRole(Roles.Admin))
             {
                 <div class="card-footer text-muted d-flex align-items-center justify-content-center">
@@ -86,8 +87,7 @@
                     </button>
                     <button class="btn btn-info" id="descargar">Descargar</button>
                 </div>
-            }
-        </form>
+            }        
     </div>
 </div>
 

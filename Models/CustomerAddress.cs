@@ -14,5 +14,6 @@
         public string province_code { get; set; }
         public string country_code { get; set; }
         public string customer_id { get; set; }
+        public string phone { get; set; }
     }
 }
