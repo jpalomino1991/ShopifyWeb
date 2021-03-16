@@ -52,7 +52,7 @@ namespace ShopifyWeb.Controllers
 
             var orders = (from o in _context.Orders
                       join c in _context.Customer on o.customer_id equals c.id
-                      join ca in _context.CustomerAddress on c.id equals ca.customer_id
+                      join ca in _context.CustomerAddress on new { c1 = o.customer_address_id, c2 = c.id } equals new { c1 = ca.id, c2 = ca.customer_id }
                       join b in _context.BillAddress on o.id equals b.order_id
                       select new OrderList
                       {
@@ -225,7 +225,7 @@ namespace ShopifyWeb.Controllers
             detail.Bill = _context.BillAddress.Where(b => b.order_id.Equals(id)).FirstOrDefault();
             detail.Ship = _context.ShipAddress.Where(s => s.order_id.Equals(id)).FirstOrDefault();
             detail.Customer = _context.Customer.Where(c => c.id.Equals(detail.Order.customer_id)).FirstOrDefault();
-            detail.Customer.default_address = _context.CustomerAddress.Where(d => d.customer_id.Equals(detail.Order.customer_id)).FirstOrDefault();
+            detail.Customer.default_address = _context.CustomerAddress.Where(d => (d.customer_id.Equals(detail.Order.customer_id)) && (d.id.Equals(detail.Order.customer_address_id))).FirstOrDefault();
             detail.Items = items;
             detail.Combo = getStateValues(detail.Order.status,detail.Order.fechaEstimada.Contains("para recojo") ? true : false);
 
