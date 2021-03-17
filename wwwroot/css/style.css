@@ -176,7 +176,7 @@ nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
 	float: left;
 	width: 200px;
 	height: 200px;
-	position: relative;
+	position: absolute;
 }
 
 .del_photo {

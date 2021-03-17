@@ -82,21 +82,21 @@
                 {
 
                     <div id="images" class="imageshow">
-                        <input type="hidden" asp-for="@Model.imgtoShow[i]" />
+                        <input class="imgform" type="hidden" asp-for="@Model.imgtoShow[i]" />
                         @if (Model.imgtoShow[i].Contains("cdn.shopify"))
                         {
-                            <img src="@Model.imgtoShow[i]" class="img-thumbnail" width="200">
+                            <img id="img:@i" src="@Model.imgtoShow[i]" class="img-thumbnail" width="200">
                         }
                         else
                         {
-                            <img src="data:image/jpeg;base64,@Model.imgtoShow[i]" class="img-thumbnail" width="200">
+                            <img id="img:@i" src="data:image/jpeg;base64,@Model.imgtoShow[i]" class="img-thumbnail" width="200">
                         }
-                        @if (User.IsInRole(Roles.Admin))
+                        @*@if (User.IsInRole(Roles.Admin))
                         {
                             <button type="button" class="close del_photo eliminar" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                        }
+                        }*@
                     </div>
                 }
             </div>
@@ -160,16 +160,25 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            var originalVal = [0, 1, 2];
             $("#desc").summernote();
+            $("#showimage").sortable({
+                update: function (event, ui) {
+                    getIdsOfImages();
+                }
+            });
+            $("#showimage").disableSelection();
             $("#prueba2").click(function (e) {
                 $('#staticBackdrop').modal('show');
                 e.preventDefault();
-                var result = $('#EditProduct').serialize();
+                var result = $('#EditProduct').find('input:not(.imgform)').serialize();
 
                 $.ajax({
                     method: 'post',
                     url: '/Products/Edit',
                     headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').last().val() },
+                    contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+                    dataType: 'json',
                     data: result,
                     success: function () {
                         setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
@@ -263,6 +272,17 @@
                     }
                 }
             }
+
+            function getIdsOfImages() {
+                var values = [];
+                $('.imageshow').each(function (index) {
+                    values.push($(this).find("img").attr("id")
+                        .replace("img:", ""));
+                });
+
+                if(originalVal !== values)
+                    console.log(values);
+            } 
         });
     </script>
 }
