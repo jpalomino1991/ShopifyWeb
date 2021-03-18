@@ -176,7 +176,7 @@ nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
 	float: left;
 	width: 200px;
 	height: 200px;
-	position: absolute;
+	position: relative;
 }
 
 .del_photo {
@@ -187,4 +187,8 @@ nav.navbar.navbar-expand-sm.flex-md-nowrap.navbar-dark.bg-dark.sticky-top {
 }
 a[href="http://somee.com"] {
 	display: none;
+}
+.table .thead-dark th {
+	font-size: 13px !important;
+	white-space: nowrap;
 }

@@ -50,7 +50,7 @@
             <th>SKU</th>
             <th>Precio</th>
             <th>IGV</th>
-            <th>Ver</th>
+            <th>Link</th>
         </tr>
     </thead>
     <tbody>
@@ -64,7 +64,7 @@
                 <td>@Model.Items[i - 1].sku</td>
                 <td>@Model.Items[i - 1].price</td>
                 <td>@Model.Items[i - 1].tax_price</td>
-                <td><a class="btn btn-info" href="@Environment.GetEnvironmentVariable("WEB_URL")@Model.Items[i - 1].handle?variant=@Model.Items[i - 1].variant_id" target="_blank">Link</a></td>
+                <td><a class="btn btn-info" href="@Environment.GetEnvironmentVariable("WEB_URL")@Model.Items[i - 1].handle?variant=@Model.Items[i - 1].variant_id" target="_blank">Ver</a></td>
             </tr>
         }
     </tbody>
@@ -104,8 +104,8 @@
                 <p class="card-text"><strong>Referencia:</strong> @Model.Customer.default_address.address2</p>
                 <p class="card-text"><strong>Teléfono:</strong> @Model.Customer.default_address.phone</p>
                 <p class="card-text"><strong>Departamento:</strong> @Model.Customer.default_address.province</p>
-                <p class="card-text"><strong>Provincia:</strong> @Model.Customer.default_address.city</p>
-                <p class="card-text"><strong>Distrito:</strong> @Model.Customer.default_address.zip</p>
+                <p class="card-text"><strong>Provincia:</strong> @Model.Customer.default_address.zip</p>
+                <p class="card-text"><strong>Distrito:</strong> @Model.Customer.default_address.city</p>
             </div>
         </div>
     </div>
@@ -120,8 +120,8 @@
                 <p class="card-text"><strong>Referencia:</strong> @Model.Ship.address2</p>
                 <p class="card-text"><strong>Teléfono:</strong> @Model.Ship.phone</p>
                 <p class="card-text"><strong>Departamento:</strong> @Model.Ship.province</p>
-                <p class="card-text"><strong>Provincia:</strong> @Model.Ship.city</p>
-                <p class="card-text"><strong>Distrito:</strong> @Model.Ship.zip</p>
+                <p class="card-text"><strong>Provincia:</strong> @Model.Ship.zip</p>
+                <p class="card-text"><strong>Distrito:</strong> @Model.Ship.city</p>
             </div>
         </div>
     </div>
@@ -136,8 +136,8 @@
                 <p class="card-text"><strong>Referencia:</strong> @Model.Bill.address2</p>
                 <p class="card-text"><strong>Teléfono:</strong> @Model.Bill.phone</p>
                 <p class="card-text"><strong>Departamento:</strong> @Model.Bill.province</p>
-                <p class="card-text"><strong>Provincia:</strong> @Model.Bill.city</p>
-                <p class="card-text"><strong>Distrito:</strong> @Model.Bill.zip</p>
+                <p class="card-text"><strong>Provincia:</strong> @Model.Bill.zip</p>
+                <p class="card-text"><strong>Distrito:</strong> @Model.Bill.city</p>
             </div>
         </div>
     </div>

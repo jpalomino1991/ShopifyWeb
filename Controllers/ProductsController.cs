@@ -362,7 +362,7 @@ namespace ShopifyWeb.Controllers
             var childs = _context.Product.Where(p => p.ParentId == id).OrderBy(p => p.ParentId).ToList();
             ps.childs = childs;
 
-            List<ProductImage> lstImg = _context.ProductImage.Where(p => p.product_id == id).ToList();
+            List<ProductImage> lstImg = _context.ProductImage.Where(p => p.product_id == id).OrderBy(p => p.position).ToList();
             List<string> lstStr = new List<string>();
 
             foreach(ProductImage pi in lstImg)
@@ -727,6 +727,53 @@ namespace ShopifyWeb.Controllers
                 _logger.LogError("Error deleting product: " + response.ErrorMessage);
                 return NotFound(response.ErrorMessage);
             }
+        }
+
+        [HttpPost]
+        public IActionResult UpdateImage(List<int> values, string id)
+        {
+            if (values.Count > 0)
+            {
+                List<ProductImage> lsImg = _context.ProductImage.Where(i => i.product_id == id).OrderBy(p => p.position).ToList();
+                bool change = false;
+
+                for (int i = 0; i < values.Count; i++)
+                {
+                    if((i + 1) != lsImg[values[i]].position)
+                    {
+                        if(!change)
+                        {
+                            dynamic JProduct = new
+                            {
+                                image = new
+                                {
+                                    id = lsImg[values[i]].id,
+                                    position = i + 1
+                                }
+                            };
+                            IRestResponse response = CallShopify($"products/{id}/images/{lsImg[values[i]].id}.json", Method.PUT, JProduct);
+                            if (response.StatusCode.ToString().Equals("OK"))
+                            {
+                                change = true;
+                            }
+                            else
+                            {
+                                _logger.LogError("Error updating product image: " + response.ErrorMessage);
+                                return NotFound(response.ErrorMessage);
+                            }
+                        }
+                        lsImg[values[i]].position = i + 1;
+                    }
+                }
+
+                _context.UpdateRange(lsImg);
+                _context.SaveChanges();
+                _logger.LogInformation("Product image updated");
+
+                return Ok();
+            }
+            else
+                return NotFound();
         }
 
         private bool ProductExists(string id)

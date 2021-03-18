@@ -7,6 +7,7 @@ namespace ShopifyWeb.Models
 {
     public class MasterImage
     {
+        public List<ImageShopify> lstImage { get; set; }
         public ImageShopify image { get; set; }
     }
 }
