@@ -363,6 +363,7 @@ namespace ShopifyWeb.Controllers
             ps.childs = childs;
 
             List<ProductImage> lstImg = _context.ProductImage.Where(p => p.product_id == id).OrderBy(p => p.position).ToList();
+            ps.lstImage = lstImg;
             List<string> lstStr = new List<string>();
 
             foreach(ProductImage pi in lstImg)
@@ -730,16 +731,16 @@ namespace ShopifyWeb.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateImage(List<int> values, string id)
+        public IActionResult UpdateImage(List<string> values, string id)
         {
             if (values.Count > 0)
             {
-                List<ProductImage> lsImg = _context.ProductImage.Where(i => i.product_id == id).OrderBy(p => p.position).ToList();
                 bool change = false;
 
                 for (int i = 0; i < values.Count; i++)
                 {
-                    if((i + 1) != lsImg[values[i]].position)
+                    ProductImage pi = _context.ProductImage.Find(values[i]);
+                    if((i + 1) != pi.position)
                     {
                         if(!change)
                         {
@@ -747,11 +748,11 @@ namespace ShopifyWeb.Controllers
                             {
                                 image = new
                                 {
-                                    id = lsImg[values[i]].id,
+                                    id = pi.id,
                                     position = i + 1
                                 }
                             };
-                            IRestResponse response = CallShopify($"products/{id}/images/{lsImg[values[i]].id}.json", Method.PUT, JProduct);
+                            IRestResponse response = CallShopify($"products/{id}/images/{pi.id}.json", Method.PUT, JProduct);
                             if (response.StatusCode.ToString().Equals("OK"))
                             {
                                 change = true;
@@ -762,11 +763,10 @@ namespace ShopifyWeb.Controllers
                                 return NotFound(response.ErrorMessage);
                             }
                         }
-                        lsImg[values[i]].position = i + 1;
+                        pi.position = i + 1;
+                        _context.Update(pi);
                     }
                 }
-
-                _context.UpdateRange(lsImg);
                 _context.SaveChanges();
                 _logger.LogInformation("Product image updated");
 

@@ -85,7 +85,7 @@
                         <input class="imgform" type="hidden" asp-for="@Model.imgtoShow[i]" />
                         @if (Model.imgtoShow[i].Contains("cdn.shopify"))
                         {
-                            <img id="img:@i" src="@Model.imgtoShow[i]" class="img-thumbnail" width="200" height="200">
+                            <img id="@Model.lstImage[i].id" src="@Model.lstImage[i].src" class="img-thumbnail" width="200" height="200">
                         }
                         else
                         {
@@ -160,7 +160,7 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            var originalVal = [0, 1, 2];
+            var originalVal = [@Model.lstImage[0].id, @Model.lstImage[1].id, @Model.lstImage[2].id];
             $("#desc").summernote();
             $("#showimage").sortable({
                 update: function (event, ui) {
@@ -280,25 +280,28 @@
                         .replace("img:", ""));
                 });
 
-                if(originalVal !== values)
-                    console.log(values);
+                console.log(values);
+                //console.log(originalVal);
 
-                $('#staticBackdrop').modal('show');
+                if (originalVal !== values) {
+                    $('#staticBackdrop').modal('show');
 
-                $.ajax({
-                    method: 'post',
-                    url: '/Products/UpdateImage',
-                    data: { values : values, id: @Model.parent.Id },
-                    success: function () {
-                        setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
-                        alert("Subido con exito");
-                    },
-                    error: function (err) {
-                        setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
-                        alert(err.responseText);
-                    }
-                });
-            } 
+                    $.ajax({
+                        method: 'post',
+                        url: '/Products/UpdateImage',
+                        data: { values : values, id: @Model.parent.Id },
+                        success: function () {
+                            setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
+                            alert("Subido con exito");
+                            originalVal = values;
+                        },
+                        error: function (err) {
+                            setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
+                            alert(err.responseText);
+                        }
+                    });
+                }
+            }
         });
     </script>
 }
