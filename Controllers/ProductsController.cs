@@ -782,9 +782,25 @@ namespace ShopifyWeb.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteImage()
+        public IActionResult DeleteImage(string id)
         {
-            return Ok();
+            ProductImage pi = _context.ProductImage.Find(id);
+            if(pi != null)
+            {
+                IRestResponse response = CallShopify($"products/{pi.product_id}/images/{pi.id}.json", Method.DELETE, null);
+                if (response.StatusCode.ToString().Equals("OK"))
+                {
+                    _context.ProductImage.Remove(pi);
+                    return Ok();
+                }
+                else
+                {
+                    _logger.LogError("Error updating product image: " + response.ErrorMessage);
+                    return NotFound(response.ErrorMessage);
+                }
+            }
+            else
+                return NotFound();
         }
     }
 }

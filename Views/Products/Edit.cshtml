@@ -224,7 +224,16 @@
             function eliminarDiv(btn) {
                 cont--;
                 console.log(cont);
-                $(btn).parents("div.imageshow:first").remove();
+                $.ajax({
+                    method: 'post',
+                    url: '/Products/DeleteImage/' + $(btn).parent().find('img').attr('id'),
+                    success: function () {
+                        $(btn).parents("div.imageshow:first").remove();
+                    },
+                    error: function (err) {
+                        alert(err.responseText);
+                    }
+                });
             }
 
             function readUrl(input) {
