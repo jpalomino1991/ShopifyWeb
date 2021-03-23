@@ -91,12 +91,12 @@
                         {
                             <img id="img:@i" src="data:image/jpeg;base64,@Model.imgtoShow[i]" class="img-thumbnail" height="200">
                         }
-                        @*@if (User.IsInRole(Roles.Admin))
+                        @if (User.IsInRole(Roles.Admin))
                         {
                             <button type="button" class="close del_photo eliminar" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-                        }*@
+                        }
                     </div>
                 }
             </div>

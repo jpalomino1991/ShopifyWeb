@@ -31,7 +31,7 @@ namespace ShopifyWeb.Controllers
         }
 
         // GET: Orders
-        public IActionResult Index(string byOrderNumber, DateTime byDate, string byName, string byDni, string byPhone, string byEmail,int byPayment, int byPaymentState, int byOrderState, int pageNumber = 1, int pageSize = 10)
+        public IActionResult Index(string byOrderNumber, string byName, string byDni, string byPhone, string byEmail,int byPayment, int byPaymentState, int byOrderState, bool byDate, DateTime byDateBegin, DateTime byDateEnd, int pageNumber = 1, int pageSize = 10)
         {
             ViewBag.byName = byName;
             ViewBag.byOrderNumber = byOrderNumber;
@@ -41,13 +41,12 @@ namespace ShopifyWeb.Controllers
             ViewBag.byPayment = byPayment;
             ViewBag.byPaymentState = byPaymentState;
             ViewBag.byOrderState = byOrderState;
+            ViewBag.byDate = byDate;
+            ViewBag.byDateBegin = byDateBegin;
+            ViewBag.byDateEnd = byDateEnd;
 
             TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById("SA Pacific Standard Time");
-            if (byDate == DateTime.MinValue)
-            {
-                byDate = TimeZoneInfo.ConvertTime(DateTime.Now, tst);
-            }
-            ViewBag.byDate = byDate.ToString("yyyy-MM-dd");
+
             int ExcludeRecords = (pageSize * pageNumber) - pageSize;
 
             var orders = (from o in _context.Orders
@@ -96,9 +95,9 @@ namespace ShopifyWeb.Controllers
             {
                 orders = orders.Where(o => o.nombre.Contains(byName));
             }
-            if (byDate.Date != DateTime.Now.Date)
+            if (byDate)
             {
-                orders = orders.Where(o => o.fecha.Date.Equals(byDate.Date));
+                orders = orders.Where(o => o.fecha.Date > byDateBegin.Date && o.fecha.Date < byDateEnd.AddDays(1).AddTicks(-1));
             }
             if (!string.IsNullOrEmpty(byDni))
             {

@@ -20,12 +20,6 @@
                 </div>
                 <div class="col">
                     <div class="form-group">
-                        <label for="Nombre" class="control-label">Fecha</label>
-                        <input class="form-control" id="date" name="ByDate" value="@ViewBag.byDate" width="234" />
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="form-group">
                         <label for="Nombre" class="control-label">Nombres y Apellidos</label>
                         <input type="text" name="ByName" value="@ViewBag.byName" class="form-control" />
                     </div>
@@ -42,14 +36,14 @@
                         <input type="text" name="ByPhone" value="@ViewBag.byPhone" class="form-control" />
                     </div>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col">
                     <div class="form-group">
                         <label for="Nombre" class="control-label">Correo</label>
                         <input type="text" name="ByEmail" value="@ViewBag.byEmail" class="form-control" />
                     </div>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col">
                     <div class="form-group">
                         <label for="Nombre" class="control-label">Tipo de Pago</label>
@@ -85,7 +79,23 @@
                         </select>
                     </div>
                 </div>
+                <div class="col">
+                    <div class="form-group">
+                        <div class="custom-control custom-switch" style="margin-bottom: 8px;">
+                            <input type="checkbox" class="custom-control-input" id="switch" name="ByDate" value="@ViewBag.byDate">
+                            <label class="custom-control-label" for="switch">Fecha Inicio</label>
+                        </div>
+                        <input class="form-control" id="date1" name="ByDateBegin" value="@ViewBag.byDateBegin" />
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <label for="Nombre" class="control-label">Fecha Fin</label>
+                        <input class="form-control" id="date2" name="ByDateEnd" value="@ViewBag.byDateEnd" />
+                    </div>
+                </div>
             </div>
+            
             <input type="submit" value="Buscar" class="btn btn-info">
             <a class="btn btn-warning" asp-action="Index">Quitar Filtro</a>
         </form>
@@ -175,8 +185,25 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $("#date").datepicker({
+            $("#date1").datepicker({
                 dateFormat: "yy-mm-dd"
+            });
+            $("#date2").datepicker({
+                dateFormat: "yy-mm-dd"
+            });
+            $('#date1').prop('disabled',true);
+            $('#date2').prop('disabled', true);
+            $('#switch').change(function () {
+                if (this.checked) {
+                    $(this).val(true);
+                    $('#date1').prop('disabled', false);
+                    $('#date2').prop('disabled', false);
+                }
+                else {
+                    $(this).val(false);
+                    $('#date1').prop('disabled', true);
+                    $('#date2').prop('disabled', true);
+                }
             });
             $("#payment").val('@ViewBag.byPayment');
             $("#paymentState").val('@ViewBag.byPaymentState');

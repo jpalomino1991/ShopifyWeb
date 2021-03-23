@@ -780,5 +780,11 @@ namespace ShopifyWeb.Controllers
         {
             return _context.Product.Any(e => e.Id == id);
         }
+
+        [HttpPost]
+        public IActionResult DeleteImage()
+        {
+            return Ok();
+        }
     }
 }
