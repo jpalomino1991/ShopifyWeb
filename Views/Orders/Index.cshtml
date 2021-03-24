@@ -191,16 +191,18 @@
             $("#date2").datepicker({
                 dateFormat: "yy-mm-dd"
             });
-            $('#date1').prop('disabled',true);
-            $('#date2').prop('disabled', true);
+            $('#switch').prop('checked', @ViewBag.byDate);
+            $('#switch').trigger('change');
             $('#switch').change(function () {
                 if (this.checked) {
+                    console.log('checked');
                     $(this).val(true);
                     $('#date1').prop('disabled', false);
                     $('#date2').prop('disabled', false);
                 }
                 else {
                     $(this).val(false);
+                    console.log('no check');
                     $('#date1').prop('disabled', true);
                     $('#date2').prop('disabled', true);
                 }

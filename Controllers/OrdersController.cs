@@ -41,7 +41,7 @@ namespace ShopifyWeb.Controllers
             ViewBag.byPayment = byPayment;
             ViewBag.byPaymentState = byPaymentState;
             ViewBag.byOrderState = byOrderState;
-            ViewBag.byDate = byDate;
+            ViewBag.byDate = byDate.ToString().ToLower();
             ViewBag.byDateBegin = byDateBegin;
             ViewBag.byDateEnd = byDateEnd;
 
