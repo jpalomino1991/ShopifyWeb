@@ -97,7 +97,7 @@ namespace ShopifyWeb.Controllers
             }
             if (byDate)
             {
-                orders = orders.Where(o => o.fecha.Date > byDateBegin.Date && o.fecha.Date < byDateEnd.AddDays(1).AddTicks(-1));
+                orders = orders.Where(o => o.fecha.Date > byDateBegin.Date.AddTicks(-1) && o.fecha.Date < byDateEnd.AddDays(1).AddTicks(-1));
             }
             if (!string.IsNullOrEmpty(byDni))
             {
