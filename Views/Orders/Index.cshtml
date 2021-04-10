@@ -1,4 +1,5 @@
 ﻿@model cloudscribe.Pagination.Models.PagedResult<OrderList>
+@using ShopifyWeb.Helpers
 
 @{
     ViewData["Title"] = "App Kelly's";
@@ -9,7 +10,7 @@
 
 <div class="card cardFilter">
     <div class="card-body">
-        <form asp-action="Index" method="get">
+        <form asp-action="Index" method="get" id="filtros">
             <h4>Buscar Por: </h4>
             <div class="row">
                 <div class="col">
@@ -95,10 +96,16 @@
                     </div>
                 </div>
             </div>
-            
+
             <input type="submit" value="Buscar" class="btn btn-info">
-            <a class="btn btn-warning" asp-action="Index">Quitar Filtro</a>
+            <a class="btn btn-warning cardFilter" asp-action="Index">Quitar Filtro</a>
         </form>
+        @if (User.IsInRole(Roles.Admin))
+        {
+            <div class="card-footer text-muted d-flex align-items-center justify-content-center">
+                <button class="btn btn-info" id="descargar">Descargar</button>
+            </div>
+        }
     </div>
 </div>
 
@@ -132,55 +139,56 @@
     <tbody>
         @foreach (var item in Model.Data)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.numero)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.fecha)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.total)
-            </td>
-            <td>
-                @switch (item.tipo)
-                {
-                    case "Bank Deposit":
-                        <p>Deposito Bancario</p>
-                        break;
-                    case "Cash on Delivery (COD)":
-                        <p>Contraentrega</p>
-                        break;
-                    case "mercado_pago":
-                        <p>Mercado Pago</p>
-                        break;
-                }
-            </td>
-            <td>
-                @if (item.estado == "pending")
-                {
-                    <p>Pendiente</p>
-                }
-                else
-                {
-                    <p>Pagado</p>
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.estadoOrden)
-            </td>
-            <td>
-                <a class="btn btn-info" role="button" asp-action="Edit" asp-route-id="@item.id">Ver</a>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.numero)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.fecha)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.total)
+                </td>
+                <td>
+                    @switch (item.tipo)
+                    {
+                        case "Bank Deposit":
+                            <p>Deposito Bancario</p>
+                            break;
+                        case "Cash on Delivery (COD)":
+                            <p>Contraentrega</p>
+                            break;
+                        case "mercado_pago":
+                            <p>Mercado Pago</p>
+                            break;
+                    }
+                </td>
+                <td>
+                    @if (item.estado == "pending")
+                    {
+                        <p>Pendiente</p>
+                    }
+                    else
+                    {
+                        <p>Pagado</p>
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.estadoOrden)
+                </td>
+                <td>
+                    <a class="btn btn-info" role="button" asp-action="Edit" asp-route-id="@item.id">Ver</a>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
 
 <partial name="_PaginationPartial" view-data="ViewData" model="Model" /> <p>Total : @Model.TotalItems</p>
+<partial name="_LoadingPartial" />
 
 @section Scripts {
     <script>
@@ -210,6 +218,36 @@
             $("#payment").val('@ViewBag.byPayment');
             $("#paymentState").val('@ViewBag.byPaymentState');
             $("#orderState").val('@ViewBag.byOrderState');
+
+            $('#descargar').click(function (e) {
+                e.preventDefault();
+                $('#staticBackdrop').modal('show');
+                var result = $('#filtros').serialize();
+                $.ajax({
+                    method: 'post',
+                    url: '/Orders/Download/',
+                    xhrFields: {
+                        responseType: 'blob'
+                    },
+                    data: result,
+                    success: function (data) {
+                        var a = document.createElement('a');
+                        var url = window.URL.createObjectURL(data);
+                        a.href = url;
+                        a.download = 'Orders.csv';
+                        document.body.append(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                        setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
+                    },
+                    error: function (err) {
+                        setTimeout(function () { $('#staticBackdrop').modal('hide'); }, 2000);
+                        alert(err.responseText);
+                    }
+                });
+            });
+
         });
     </script>
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using cloudscribe.Pagination.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -505,6 +506,88 @@ namespace ShopifyWeb.Controllers
                 _logger.LogError("Error calling API", e);
                 return null;
             }
+        }
+
+        [HttpPost]
+        public FileResult Download(string byOrderNumber, string byName, string byDni, string byPhone, string byEmail, int byPayment, int byPaymentState, int byOrderState, bool byDate, DateTime byDateBegin, DateTime byDateEnd)
+        {
+            string orderState = "",paymentState = "",payment = "";
+
+            if(byPayment > 0)
+            {
+                switch(byPayment)
+                {
+                    case 1:
+                        payment = "Bank Deposit";
+                        break;
+                    case 2:
+                        payment = "mercado_pago";
+                        break;
+                    case 3:
+                        payment = "Cash on Delivery (COD)";
+                        break;
+                }
+            }
+
+            if (byPaymentState > 0)
+            {
+                switch (byPaymentState)
+                {
+                    case 1:
+                        paymentState = "pending";
+                        break;
+                    case 2:
+                        paymentState = "paid";
+                        break;
+                }
+            }
+
+            if (byOrderState > 0)
+            {
+                switch (byOrderState)
+                {
+                    case 1:
+                        orderState = "Pedido recibido";
+                        break;
+                    case 2:
+                        orderState = "Pago confirmado";
+                        break;
+                    case 3:
+                        orderState = "Entregado al courier";
+                        break;
+                    case 4:
+                        orderState = "Listo para recojo";
+                        break;
+                    case 5:
+                        orderState = "Entregado al cliente";
+                        break;
+                    case 6:
+                        orderState = "Cancelado";
+                        break;
+                }
+            }
+
+            List<OrderDownload> products = _context.OrderDownload.FromSqlInterpolated($"GetDataForOrderDownload @ByOrderNumber = {(string.IsNullOrEmpty(byOrderNumber) ? 0 : 1)},@OrderNumber = {(string.IsNullOrEmpty(byOrderNumber) ? "" : byOrderNumber)},@ByDate = {(byDate ? 1 : 0)},@BeginDate = {(byDate ? byDateBegin.AddTicks(-1) : byDateBegin.AddYears(2000))},@EndDate = {(byDate ? byDateEnd.AddDays(1).AddTicks(-1) : byDateEnd.AddYears(2000))},@ByName = {(string.IsNullOrEmpty(byName) ? 0 : 1)},@Name = {(string.IsNullOrEmpty(byName) ? "" : byName)},@ByDNI = {(string.IsNullOrEmpty(byDni) ? 0 : 1)},@DNI = {(string.IsNullOrEmpty(byDni) ? "" : byDni)},@ByPhone = {(string.IsNullOrEmpty(byPhone) ? 0 : 1)},@Phone = {(string.IsNullOrEmpty(byPhone) ? "" : byPhone)},@ByEmail = {(string.IsNullOrEmpty(byEmail) ? 0 : 1)},@Email = {(string.IsNullOrEmpty(byEmail) ? "" : byEmail)},@ByPayment = {(byPayment == 0 ? 0 : 1)},@Payment = {payment},@ByPaymentStatus = {(byPaymentState == 0 ? 0 : 1)},@PaymentStatus = {paymentState},@ByStatus = {(byOrderState == 0 ? 0 : 1)},@Status = {orderState}").ToList();
+
+            List<object> customers = new List<object>();
+            customers.Insert(0, new string[37] { "# Orden", "Fecha Orden", "Nombre y Apellidos", "DNI", "Correo", "Teléfono", "SubTotal", "Total Envío", "Total IGV", "Total", "Total Descuentos", "Tipo Pago", "Estado Pago", "Estado Orden", "Tipo de Envío", "SKU", "Id Shopify", "Producto", "Cantidad", "Link del Producto", "Precio", "Cliente", "Dirección Facturación", "Referencia", "DNI", "Distrito", "Provincia", "Departamento", "Teléfono", "Destinatario", "Dirección Entrega", "Referencia", "DNI", "Distrito", "Provincia", "Departamento", "Teléfono" });
+
+            StringBuilder sb = new StringBuilder();
+
+            object[] customer = (object[])customers[0];
+            for (int j = 0; j < customer.Length; j++)
+            {
+                sb.Append(customer[j].ToString() + ';');
+            }
+            sb.Append("\r\n");
+
+            foreach (OrderDownload p in products)
+            {
+                sb.Append(p.ToLine());
+                sb.Append("\r\n");
+            }
+
+            return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", "Order.csv");
         }
     }
 }
