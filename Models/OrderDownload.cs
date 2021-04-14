@@ -46,7 +46,7 @@ namespace ShopifyWeb.Models
         public string DPhone { get; set; }
         public string ToLine()
         {
-            return $"{orderNumber};{created_at};{name};{company};{email};{phone};{subtotal_price};{shipping_price};{total_tax};{total_price};{total_discounts};{TipoPago};{EstadoPago};{status};{tipoEnvio};{sku};{product_id};{quantity};{ProductName};{Link};{Price};{Cliente};{SFacturacion};{SReferencia};{SDni};{SCity};{SCountry};{SProvince};{SPhone};{Destinatario};{DEntrega};{DReferencia};{DDni};{DCity};{DCountry};{DProvince};{DPhone};";
+            return $"{orderNumber};{created_at.ToString("dd/MM/yyyy HH:mm")};{name};{company};{email};{phone};{subtotal_price};{shipping_price};{total_tax};{total_price};{total_discounts};{TipoPago};{EstadoPago};{status};{tipoEnvio};{sku};{product_id};{quantity};{ProductName};{Link};{Price};{Cliente};{SFacturacion};{SReferencia};{SDni};{SCity};{SCountry};{SProvince};{SPhone};{Destinatario};{DEntrega};{DReferencia};{DDni};{DCity};{DCountry};{DProvince};{DPhone};";
         }
     }
 }
