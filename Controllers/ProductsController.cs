@@ -504,7 +504,7 @@ namespace ShopifyWeb.Controllers
 
                     List<ImageShopify> imageShopifies = new List<ImageShopify>();
                     ps.images = new List<ImageShopify>();
-                    if(lstProduct.imgtoShow.Count > 0)
+                    if(lstProduct.imgtoShow != null && lstProduct.imgtoShow.Count > 0)
                     {
                         int i = 1;
                         foreach (string file in lstProduct.imgtoShow)
@@ -539,55 +539,42 @@ namespace ShopifyWeb.Controllers
 
                     if(ps.id != null)
                     {
-                        List<ProductImage> lstPi = _context.ProductImage.Where(p => p.product_id == ps.id).ToList();
-                        foreach(ProductImage pi in lstPi)
-                        {
-                            if(!lstProduct.imgtoShow.Contains(pi.src))
-                            {
-                                IRestResponse response1 = CallShopify($"products/{ps.id}/images/{pi.id}.json",Method.DELETE,null);
-                                if(response1.StatusCode.ToString().Equals("OK"))
-                                {
-                                    _context.ProductImage.Remove(pi);
-                                }
-                                else
-                                {
-                                    _logger.LogError("Error uploading product: " + response1.ErrorMessage);
-                                    return NotFound(response1.ErrorMessage);
-                                }
-                            }
-                        }
-
                         IRestResponse response = CallShopify("products/" + ps.id + ".json", Method.PUT, oJson);
                         if (response.StatusCode.ToString().Equals("OK"))
                         {
-                            if (imageShopifies.Count > 0)
-                            {
-                                foreach(ImageShopify imgS in imageShopifies)
-                                {
-                                    dynamic oJ = new
-                                    {
-                                        image = imgS
-                                    };
-                                    IRestResponse response1 = CallShopify($"products/{ps.id}/images.json", Method.POST, oJ);
-                                    if(response1.StatusCode.ToString().Equals("OK"))
-                                    {
-                                        MasterImage mi = JsonConvert.DeserializeObject<MasterImage>(response1.Content);
+                            //if (imageShopifies.Count > 0)
+                            //{
+                            //    int position = 1;
+                            //    foreach(ImageShopify imgS in imageShopifies)
+                            //    {
+                            //        if (imageShopifies.Count == 3)
+                            //            imgS.position = position;
+                            //        dynamic oJ = new
+                            //        {
+                            //            image = imgS
+                            //        };
+                            //        IRestResponse response1 = CallShopify($"products/{ps.id}/images.json", Method.POST, oJ);
+                            //        if(response1.StatusCode.ToString().Equals("OK"))
+                            //        {
+                            //            MasterImage mi = JsonConvert.DeserializeObject<MasterImage>(response1.Content);
 
-                                        ProductImage pi = new ProductImage();
-                                        pi.id = mi.image.id;
-                                        pi.product_id = lstProduct.parent.Id;
-                                        pi.src = mi.image.src;
-                                        pi.alt = mi.image.alt;
+                            //            ProductImage pi = new ProductImage();
+                            //            pi.id = mi.image.id;
+                            //            pi.product_id = lstProduct.parent.Id;
+                            //            pi.position = mi.image.position;
+                            //            pi.src = mi.image.src;
+                            //            pi.alt = mi.image.alt;
+                            //            position++;
 
-                                        _context.ProductImage.Add(pi);
-                                    }
-                                    else
-                                    {
-                                        _logger.LogError("Error uploading product: " + response1.ErrorMessage);
-                                        return NotFound(response1.ErrorMessage);
-                                    }
-                                }                                
-                            }
+                            //            _context.ProductImage.Add(pi);
+                            //        }
+                            //        else
+                            //        {
+                            //            _logger.LogError("Error uploading product: " + response1.ErrorMessage);
+                            //            return NotFound(response1.ErrorMessage);
+                            //        }
+                            //    }                                
+                            //}
                             _context.Product.Update(lstProduct.parent);
                             _context.Product.UpdateRange(lstProduct.childs);
                             _context.SaveChanges();
@@ -620,16 +607,16 @@ namespace ShopifyWeb.Controllers
                             _context.Product.Add(lstProduct.parent);
                             _context.Product.AddRange(lstProduct.childs);
 
-                            foreach (ImageShopify img in mp.product.images)
-                            {
-                                ProductImage pi = new ProductImage();
-                                pi.id = img.id;
-                                pi.product_id = lstProduct.parent.Id;
-                                pi.src = img.src;
-                                pi.alt = img.alt;
+                            //foreach (ImageShopify img in mp.product.images)
+                            //{
+                            //    ProductImage pi = new ProductImage();
+                            //    pi.id = img.id;
+                            //    pi.product_id = lstProduct.parent.Id;
+                            //    pi.src = img.src;
+                            //    pi.alt = img.alt;
 
-                                _context.ProductImage.Add(pi);
-                            }
+                            //    _context.ProductImage.Add(pi);
+                            //}
 
                             _context.SaveChanges();
                             _logger.LogInformation("Product created");
@@ -791,6 +778,7 @@ namespace ShopifyWeb.Controllers
                 if (response.StatusCode.ToString().Equals("OK"))
                 {
                     _context.ProductImage.Remove(pi);
+                    _context.SaveChanges();
                     return Ok();
                 }
                 else
@@ -801,6 +789,55 @@ namespace ShopifyWeb.Controllers
             }
             else
                 return NotFound();
+        }
+
+        [HttpPost]
+        public IActionResult UploadImage(IFormCollection data)
+        {
+            var id = data["id"];
+            Product p = _context.Product.Find(id);
+            ProductImage pi = _context.ProductImage.Where(i => i.product_id == p.Id).OrderByDescending(i => i.position).FirstOrDefault();
+            int position = 0;
+            if (pi != null)
+                position = pi.position + 1;
+            else
+                position = 1;
+            string filename = $"{p.SEOTitle.ToUpper().Replace("| ", "").Replace(" ", "_")}_{position}.jpg";
+            string file = data["imageFile"].ToString();
+            file = file.Substring(file.IndexOf(',') + 1);
+
+            dynamic JProduct = new
+            {
+                image = new
+                {
+                    attachment = file,
+                    filename = filename,
+                    alt = filename,
+                }
+            };
+
+            IRestResponse response = CallShopify($"products/{id}/images.json", Method.POST, JProduct);
+            if (response.StatusCode.ToString().Equals("OK"))
+            {
+                MasterImage mi = JsonConvert.DeserializeObject<MasterImage>(response.Content);
+
+                ProductImage pis = new ProductImage();
+                pis.id = mi.image.id;
+                pis.product_id = p.Id;
+                pis.position = mi.image.position;
+                pis.src = mi.image.src;
+                pis.alt = mi.image.alt;
+
+                _context.ProductImage.Add(pis);
+                _context.SaveChanges();
+
+                return Ok(mi.image.id);
+            }
+            else
+            {
+                _logger.LogError("Error updating product image: " + response.ErrorMessage);
+                return NotFound(response.ErrorMessage);
+            }
         }
     }
 }
