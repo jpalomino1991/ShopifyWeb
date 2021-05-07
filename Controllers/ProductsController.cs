@@ -492,9 +492,11 @@ namespace ShopifyWeb.Controllers
                         child.UpdateDate = DateTime.Now;
                     }
 
+                    List<ProductImage> productImages = _context.ProductImage.Where(i => i.product_id == lstProduct.parent.Id).ToList();
+
                     ps.variants = lsVariant;
                     string status = "";
-                    if (stock <= 0 || lstProduct.imgtoShow == null)
+                    if (stock <= 0 || productImages == null)
                         status = "draft";
                     else
                         status = "active";
